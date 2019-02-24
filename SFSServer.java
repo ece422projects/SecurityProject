@@ -1,33 +1,3 @@
-// import java.net.*;
-// import java.util.*;
-// import java.io.*;
-
-// public class SFSServer {
-
-//     private String url;
-//     private int portNumber;
-
-//     public SFSServer(String URL, int portN) throws Exception {
-//         this.url = URL;
-//         this.portNumber = portN;
-
-//         URL url = new URL(this.url);
-//         HttpURLConnection con = (HttpURLConnection) url.openConnection();
-//         con.setRequestMethod("GET");
-//         con.setDoOutput(true);
-//     }
-
-//     public static void main(String[] args) throws Exception {
-//         try {
-//             SFSServer server = new SFSServer("http://localhost:8080/", 8000);
-//         }
-//         catch(Exception e) {
-//             System.out.println("Nope");
-//         }
-//     }
-
-// }
-
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -41,21 +11,25 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 import com.sun.net.httpserver.Headers;
+import com.sun.net.httpserver.*;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
+import java.util.Map;
+import java.lang.*;
 
 public class SFSServer {
 
   public static void main(String[] args) throws Exception {
 
-    InetAddress IP = InetAddress.getByName("127.0.0.1");
-    HttpServer server = HttpServer.create(new InetSocketAddress(IP, 8000), 0);
+    InetAddress IP = InetAddress.getByName("localhost");
+    HttpServer server = HttpServer.create(new InetSocketAddress("localhost", 8000), 0);
     // server.createContext("/info", new InfoHandler());
     // server.createContext("/login", new GetHandler());
     server.createContext("/login", new DataHandler());
@@ -66,23 +40,25 @@ public class SFSServer {
   static class DataHandler implements HttpHandler {
     public void handle(HttpExchange t) throws IOException {
 
+      // Returns the body of GET/POST request
+      System.out.println(t.getRequestURI());
+
+      // Returns if it is GET or POST request
+      System.out.println(t.getRequestMethod());
+
+      String request;
+      InputStream in = t.getRequestBody();
+      System.out.println("NUMBER OF BYTES AVALIABLE: " + String.valueOf(in.available()));
       try {
-             
-        InputStream is = t.getRequestBody();
-        BufferedReader br = new BufferedReader(new InputStreamReader(is));
-         
-        String line = null;
-         
-        while ((line = br.readLine()) != null) {
-            if (line.equalsIgnoreCase("quit")) {
-                break;
-            }
-            System.out.println("Line entered : " + line);
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        byte buf[] = new byte[4096];
+        for (int n = in.read(buf); n > 0; n = in.read(buf)) {
+            out.write(buf, 0, n);
         }
-         
-    }
-    catch (IOException ioe) {
-        System.out.println("Exception while reading input " + ioe);
+        request = new String(out.toByteArray(), "US-ASCII");
+        System.out.println("REQUEST: " + request);
+    } finally {
+        in.close();
     }
 
     }
