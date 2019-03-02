@@ -1,10 +1,13 @@
 public class User {
 
     private String userName;
-    private Directory userDirectory;
+    private int userGroup;
 
     public User(String uName) {
         this.userName = uName;
-        this.userDirectory = new Directory(uName);
+    }
+
+    public String returnUserName() {
+        return this.userName;
     }
 }

@@ -7,6 +7,14 @@ public class Directory {
     private ArrayList<File> fileList;
     private Permissions permissions;
 
+    public Directory(String dName) {
+
+        this.directoryName = dName;
+        this.directoryList = new ArrayList<Directory>();
+        this.fileList = new ArrayList<File>();
+        this.permissions = NULL;
+    }
+
     public Directory(User o, String dName) {
 
         this.directoryName = dName;
@@ -27,15 +35,15 @@ public class Directory {
         return this.directoryName;
     }
 
-    public void addFolder(Folder f) {
+    public void addDirectory(Folder f) {
         this.directoryList.add(f);
     }
 
-    public void deleteFolder(Folder f) {
+    public void removeDirectory(Folder f) {
         this.directoryList.remove(f);
     }
 
-    public Directory getFolder(String fName) {
+    public Directory getDirectory(String fName) {
         for (Directory d : this.directoryList) {
             if (d.getDirectoryName() == fName) {
                 return d;
@@ -44,7 +52,7 @@ public class Directory {
         return null;
     }
 
-    public ArrayList<Directory> getDirectoryFolders() {
+    public ArrayList<Directory> getDirectories() {
         return this.directoryList;
     }
 
