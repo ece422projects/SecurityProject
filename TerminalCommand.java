@@ -1,15 +1,14 @@
 import java.lang.Exception;
-import java.io.IOException;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.FileReader;
-import java.io.InputStreamReader;
-import java.io.FileWriter;
+import java.io.*;
 import java.util.ArrayList;
+import javax.crypto.spec.*;
+import javax.crypto.Cipher;
+import javax.crypto.SecretKey;
 
 public class TerminalCommand {
 
     private String rootPath;
+    private String currentDirectory;
 
     public TerminalCommand() {
         this.rootPath = "/Users/manuelakm/Desktop/root";
@@ -22,60 +21,59 @@ public class TerminalCommand {
         try {
             String command = "mkdir " + this.rootPath;
             Process p = Runtime.getRuntime().exec(command);
+            this.currentDirectory = "root";
         } catch (IOException e) {
             e.printStackTrace();
         }         
     }
 
-    public void addUser(String userName) {
+    public void addUser(User u) {
 
         try {
-            String command = "mkdir " + this.rootPath +"/" + userName;
+            String command = "mkdir " + this.rootPath +"/" + u.getUserName();
             Process p = Runtime.getRuntime().exec(command);
         } catch (IOException e) {
             e.printStackTrace();
         }       
     }
 
-    public void returnUserFiles(String userName) {
+
+    public void changeDirectory(User u, String directoryName) {
+
+        this.currentDirectory = directoryName;
+    }
+
+    public void returnFiles(User u) {
 
         try {
-            String command = "ls " + this.rootPath + "/" + userName;            
+            String command = "ls " + this.rootPath + "/" + this.currentDirectory + "/";            
             Process p = Runtime.getRuntime().exec(command);
 
             BufferedReader stdInput = new BufferedReader(new 
-            InputStreamReader(p.getInputStream()));
-
-            // BufferedReader stdError = new BufferedReader(new 
-            // InputStreamReader(p.getErrorStream()));
+                                            InputStreamReader(p.getInputStream()));
 
             ArrayList<String> files = new ArrayList<String>();
             String s = null;
             while ((s = stdInput.readLine()) != null) {
-                files.add(s);
+                files.add(u.decryptData(s));
+                // files.add(s);
             }
 
             System.out.println(files.toString());
 
-            // // read any errors from the attempted command
-            // System.out.println("Here is the standard error of the command (if any):\n");
-            // while ((s = stdError.readLine()) != null) {
-            //     System.out.println(s);
-            // }
-
-
         } catch (IOException e) {
             e.printStackTrace();
-        }  
+        } 
     }
 
-    public void updateFile(String userName, String fileName, String fileBody) {
+    public void writeToFile(User u, String fileName, String fileBody) {
 
         try {
-
      
-            BufferedWriter writer = new BufferedWriter(new FileWriter(this.rootPath + "/" + userName + "/" + fileName));            
-            writer.write(fileBody);
+            BufferedWriter writer = new BufferedWriter(new FileWriter(this.rootPath + "/" + this.currentDirectory + "/" + u.encryptData(fileName) )); 
+            writer.write(u.encryptData(fileBody));
+            // BufferedWriter writer = new BufferedWriter(new FileWriter(this.rootPath + "/" + u.getUserName() + "/" + fileName));           
+            // writer.write(fileBody);
             writer.close();
 
         } catch (IOException e) {
@@ -83,48 +81,40 @@ public class TerminalCommand {
         }       
     }
 
-    public String readFile(String userName, String fileName) {
+    public String readFile(User u, String fileName) {
 
         String fileBody = "";
 
         try {
      
-            BufferedReader reader = new BufferedReader(new FileReader(this.rootPath + "/" + userName + "/" + fileName));
+            BufferedReader reader = new BufferedReader(new FileReader(this.rootPath + "/" + this.currentDirectory + "/" + u.encryptData(fileName) ) );
+            // System.out.println(u.encryptData(fileName));
+            // BufferedReader reader = new BufferedReader(new FileReader(this.rootPath + "/" + u.getUserName() + "/" + fileName));
             StringBuilder sBuilder = new StringBuilder();
             String s = null;
             while ( (s = reader.readLine()) != null) {
                 sBuilder.append(s);
             }
 
-            fileBody = sBuilder.toString();
+            fileBody = u.decryptData(sBuilder.toString());
+            // fileBody = sBuilder.toString();
             reader.close();
 
         } catch (IOException e) {
             e.printStackTrace();
         }     
         
+        System.out.println(fileBody);
         return fileBody;
     }
 
-    public void deleteFile(String userName, String fileName) {
+    public void deleteFile(User u, String fileName) {
 
         try {
-            String command = "rm " + this.rootPath + "/" + userName + "/" + fileName;            
+            String command = "rm " + this.rootPath + "/" + this.currentDirectory + "/" + fileName;            
             Process p = Runtime.getRuntime().exec(command);
         } catch (IOException e) {
             e.printStackTrace();
-        }  
-    }
-
-    public static void main(String[] args) {
-        TerminalCommand tc = new TerminalCommand();
-        tc.addUser("Manuela");
-        tc.updateFile("Manuela", "Words.txt", "These are my words. I like them.");
-        tc.updateFile("Manuela", "Sentences.txt", "Please stop!");
-        tc.updateFile("Manuela", "Words.txt", "These are my new words.");
-        tc.returnUserFiles("Manuela");
-        tc.readFile("Manuela", "Words.txt");
-        tc.returnUserFiles("Manuela");
-
+        }
     }
 }
