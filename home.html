@@ -14,8 +14,15 @@
         <a id="Backbtn" class="leftFloat"><i class="fas fa-chevron-left"></i></a>
       </li>
       <li class="leftFloat">
+          <a id="fileDropdown" onclick="fileDropdown()">File</a>
+          <div id="fileDropdowns" class="dropdown_content">
+            <p>New</p>
+            <p>New Folder</p>
+          </div>
+      </li>
+      <li class="leftFloat">
           <a id="group" onclick="groupDropdown()">Group</a>
-          <div id="groups" class="dropdown-content">
+          <div id="groups" class="dropdown_content">
             <p>New</p>
             <p>Group 1</p>
             <p>Group 2</p>
@@ -43,49 +50,68 @@
     </div>
 
     <div class="content_container leftFloat">
-      <span class="item">
+      <div class="item">
         <span class="file"><i class="fas fa-file"></i></span>
         <span class="label">Filename</span>
-      </span>
-      <span class="item">
+      </div>
+      <div class="item">
         <span class="file"><i class="fas fa-file"></i></span>
         <span class="label">File</span>
-      </span>
-      <span class="item">
+      </div>
+      <div class="item">
         <span class="folder"><i class="fas fa-folder"></i></span>
         <span class="label">Pictures</span>
-      </span>
-      <span class="item">
+      </div>
+      <div class="item">
         <span class="folder"><i class="fas fa-folder"></i></span>
         <span class="label">Pictures</span>
-      </span>
-      <span class="item">
+      </div>
+      <div class="item">
         <span class="folder"><i class="fas fa-folder"></i></span>
         <span class="label">Pictures</span>
-      </span>
-      <span class="item">
+      </div>
+      <div class="item">
         <span class="folder"><i class="fas fa-folder"></i></span>
         <span class="label">Pictures</span>
-      </span>
-      <span class="item">
+      </div>
+      <div class="item">
         <span class="folder"><i class="fas fa-folder"></i></span>
         <span class="label">Pictures</span>
-      </span>
-      <span class="item">
+      </div>
+      <div class="item">
         <span class="folder"><i class="fas fa-folder"></i></span>
         <span class="label">Pictures</span>
-      </span>
-      <span class="item">
+      </div>
+      <div class="item">
         <span class="folder"><i class="fas fa-folder"></i></span>
         <span class="label">Pictures</span>
-      </span>
+      </div>
       <div class="item">
         <span class="folder"><i class="fas fa-folder"></i></span>
         <span class="label">Pictures</span>
       </div>
 
       </div>
+      <div id="context-menu" class="context-menu">
+        <ul class="context-menu__items">
+          <li class="context-menu__item">
+            <a href="#" class="context-menu__link" data-action="Edit">Edit</a>
+          </li>
+          <li class="context-menu__item">
+            <a href="#" class="context-menu__link" data-action="Rename">Rename</a>
+          </li>
+          <li class="context-menu__item">
+            <a href="#" class="context-menu__link" data-action="Delete">Delete</a>
+          </li>
+          <li class="context-menu__item">
+            <a href="#" class="context-menu__link" data-action="Copy To">Copy To</a>
+          </li>
+          <li class="context-menu__item">
+            <a href="#" class="context-menu__link" data-action="Delete">Move To</a>
+          </li>
+        </ul>
+    </div>
   </body>
-  <script src="javascript/dropdown.js">
-  </script>
+  <script src="javascript/dropdown.js"></script>
+  <script src="javascript/contextMenu.js"></script>
 </html>
