@@ -31,7 +31,7 @@ header {
      width: 100%;
  }
 
-div.nav {
+.nav {
     background-color: #5969A1;
     display: block;
     margin: 0;
@@ -41,15 +41,20 @@ div.nav {
     border-top: 10px solid #55538a;
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
     /* position: sticky; */
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    overflow: hidden;
 }
 
-.nav > ul {
+/* .nav > ul {
   list-style-type: none;
   margin: 0;
   padding: 0;
   border: 0;
   overflow: hidden;
-}
+} */
 
 .rightFloat {
   float: right;
@@ -64,7 +69,7 @@ div.nav {
   border: 0;
 }
 
-.nav button, .nav a, .nav p{
+.nav a, .nav p{
   display: block;
   text-align: center;
   margin: 0;
@@ -77,9 +82,23 @@ div.nav {
   padding-right: 20px;
 }
 
-.nav button {
+#Backbtn {
   background-color: #5969A1;
-  height: 50px;
+  height: 40px;
+}
+
+#grpDropdown {
+  position: relative;
+  display: inline-block;
+  width: inherit;
+  border: 2px solid yellow;
+}
+#groups {
+  display: block;
+  width: inherit;
+  position: absolute;
+  border: 2px solid red;
+  z-index: 1;
 }
 
 .nav a, .nav p{
@@ -87,7 +106,7 @@ div.nav {
   text-decoration: none;
 }
 
-a:hover, .option:hover, .submitButton:hover, .nav button:hover {
+a:hover, .option:hover, .submitButton:hover, #Backbtn:hover {
   background-color: #537497;
 }
 .active {
@@ -174,9 +193,39 @@ p.content {
   padding-right: 10px;
 }
 
-.content_container > .folder, .content_container > .file{
+.content_container .folder, .content_container .file{
   font-size: 70px;
-  margin: 30px;
   color: #5e5d7e;
-  text-shadow: 3px 3px 3px #656379	;
+  text-shadow: 3px 3px 3px #656379;
+  margin-left: 5px;
+  margin-right: 5px;
+  margin-top: 5px;
+  margin-bottom: 0;
+  padding: 0;
+  border: 0;
+}
+.label{
+  display: block;
+  text-align: center;
+  max-width: inherit;
+  overflow-x: hidden;
+  font-size: 14px;
+  margin-left: 5px;
+  margin-right: 5px;
+  margin-top: 0;
+  margin-bottom: 5px;
+  border: 0;
+  padding: 0;
+}
+.item {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  flex: 1 1;
+  margin: 20px;
+}
+
+.item:hover {
+  background-color:   #acabba;
 }

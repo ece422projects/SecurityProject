@@ -2,29 +2,34 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8">
-        <title>Web Dev Basics</title>
+        <title>SFS</title>
         <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet">
         <link href="https://fonts.googleapis.com/css?family=Coiny" rel="stylesheet">
         <link rel="stylesheet" type="text/css" href="styles/sfs.css">
         <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
     </head>
     <header>
-      <div class="nav">
-          <ul>
+      <!-- <div class="nav"> -->
+          <ul class="nav">
             <li>
-              <button class="leftFloat"><i class="fas fa-chevron-left"></i></button>
+              <a id="Backbtn" class="leftFloat"><i class="fas fa-chevron-left"></i></a>
             </li>
             <li class="leftFloat">
-              <a>File</a>
-            </li>
-            <li class="leftFloat">
-              <a>Group</a>
+              <!-- <a id="group" onclick="groupDropdown()">Group</a> -->
+              <div id="grpDropdown">
+                <a id="group" onclick="groupDropdown()">Group</a>
+                <div id="groups" class="dropdown-content">
+                  <p>Group 1</p>
+                  <p>Group 2</p>
+                  <p>Group 3</p>
+                </div>
+              </div>
             </li>
             <li class="leftFloat">
               <p>Current/Path/</p>
             </li>
           </ul>
-      </div>
+      <!-- </div> -->
     </header>
 
   <body>
@@ -39,31 +44,25 @@
         <li>
           <a>Documents</a>
         </li>
+        <li>
+          <a>Pictures</a>
+        </li>
       </ul>
     </div>
 
     <div class="content_container leftFloat">
-      <span class="folder"><i class="fas fa-folder"></i></span>
-      <span class="folder"><i class="fas fa-folder"></i></span>
-      <span class="folder"><i class="fas fa-folder"></i></span>
-      <span class="folder"><i class="fas fa-folder"></i></span>
-      <span class="folder"><i class="fas fa-folder"></i></span>
-      <span class="folder"><i class="fas fa-folder"></i></span>
-      <span class="folder"><i class="fas fa-folder"></i></span>
-      <span class="folder"><i class="fas fa-folder"></i></span>
-      <span class="folder"><i class="fas fa-folder"></i></span>
-      <span class="folder"><i class="fas fa-folder"></i></span>
-      <span class="folder"><i class="fas fa-folder"></i></span>
-      <span class="folder"><i class="fas fa-folder"></i></span>
-      <span class="folder"><i class="fas fa-folder"></i></span>
-      <span class="file"><i class="fas fa-file"></i></span>
-      <span class="file"><i class="fas fa-file"></i></span>
-      <span class="file"><i class="fas fa-file"></i></span>
-      <span class="file"><i class="fas fa-file"></i></span>
-      <span class="file"><i class="fas fa-file"></i></span>
-      <span class="file"><i class="fas fa-file"></i></span>
-      <span class="file"><i class="fas fa-file"></i></span>
-
+      <span class="item">
+        <span class="file"><i class="fas fa-file"></i></span>
+        <span class="label">Filename</span>
+      </span>
+      <span class="item">
+        <span class="file"><i class="fas fa-file"></i></span>
+        <span class="label">File</span>
+      </span>
+      <span class="item">
+        <span class="folder"><i class="fas fa-folder"></i></span>
+        <span class="label">Pictures</span>
+      </span>
       </div>
   </body>
 </html>
