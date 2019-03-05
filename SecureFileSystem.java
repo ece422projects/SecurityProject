@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+
 public class SecureFileSystem {
 
     public SecureFileSystem() {
@@ -7,31 +9,31 @@ public class SecureFileSystem {
     public static void main (String[] args) {
 
         TerminalCommand tc = new TerminalCommand();
+        MySQLDatabaseHandler sqlHandler = new MySQLDatabaseHandler();
+        User user1 = sqlHandler.isCorrectLogin("user1", "user1password");
+        User user2 = sqlHandler.isCorrectLogin("user2", "user2password");
+        User user3 = sqlHandler.isCorrectLogin("user3", "user3password");
 
-        Group team1 = new Group("team1");
-        Group team2 = new Group("team2");
-        User user1 = new User("user1");
-        User user2 = new User("user2");
-        User user3 = new User("user3");
+        System.out.println(tc.changeDirectory(user1, "user1"));
 
-        team1.addGroupMember(user1);
-        team1.addGroupMember(user2);
-        team2.addGroupMember(user3);
+        System.out.println(tc.returnFileNames(user1));
+        System.out.println(tc.readFile(user1, "Sentences.txt"));
+        System.out.println(tc.readFile(user1, "Words.txt"));
 
-        tc.addUser(user1);
-        tc.addUser(user2);
-        tc.addUser(user3);
-        tc.changeDirectory(user1, "user1");
-        tc.writeToFile(user1, "Words.txt", "These are my words. I like them.");
-        tc.writeToFile(user1, "Sentences.txt", "Please stop!");
-        tc.writeToFile(user1, "Words.txt", "These are my new words.");
-        tc.readFile(user1, "Words.txt");
-        tc.returnFiles(user1);
         tc.changeDirectory(user2, "user2");
-        tc.writeToFile(user2, "Words1.txt", "I like them.");
-        tc.readFile(user2, "Words1.txt");
-        tc.returnFiles(user2);
-        tc.changeDirectory(user1, "user1");
-        tc.returnFiles(user1);
+        System.out.println(tc.returnFileNames(user2));
+        System.out.println(tc.readFile(user2, "Hello.txt"));
+        tc.changeDirectory(user3, "user3");
+        System.out.println(tc.returnFileNames(user3));
+        System.out.println(tc.readFile(user2, "Never.txt"));
+
+        System.out.println(tc.changeDirectory(user1, "user2"));
+        ArrayList<String> fileNames = tc.returnFileNames(user1);
+        System.out.println(fileNames);
+        System.out.println(tc.readFile(user1, fileNames.get(0)));
+        System.out.println(tc.changeDirectory(user1, "user3"));
+
+        sqlHandler.close();
+
     }
 }

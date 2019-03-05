@@ -1,36 +1,25 @@
+import java.util.*;
+import java.lang.*;
+import java.net.*;
+import java.io.*;
+import java.security.*;
+import javax.crypto.*;
 import javax.crypto.spec.*;
-import javax.crypto.Cipher;
-import javax.crypto.SecretKey;
-import javax.crypto.KeyGenerator;
-import java.lang.Exception;
-import java.net.URLDecoder;
-
-import javax.crypto.IllegalBlockSizeException;
-import java.io.UnsupportedEncodingException;
-import java.util.Base64.Encoder;
-import java.util.Base64.Decoder;
-import java.security.NoSuchAlgorithmException;
-import javax.crypto.NoSuchPaddingException;
-import java.security.InvalidKeyException;
-import java.net.URLEncoder;
-import java.net.URLDecoder;
-
-import java.util.Base64;
 
 public class User {
 
     private String userName;
-    private String groupName;
- 
-    private SecretKey key;
+    private String password;
     private String encodedKey;
 
-    Cipher ecipher;
-    Cipher dcipher;
+    private SecretKey key;
+    private Cipher ecipher;
+    private Cipher dcipher;
 
-    public User(String uName) {
+    public User(String uName, String password) {
+
         this.userName = uName;
-        this.groupName = null;
+        this.password = password;
 
        try {
             this.key = KeyGenerator.getInstance("AES").generateKey();
@@ -38,17 +27,18 @@ public class User {
 
             this.ecipher = Cipher.getInstance("AES");
             this.dcipher = Cipher.getInstance("AES"); 
-            this.ecipher.init(Cipher.ENCRYPT_MODE, key);
-            this.dcipher.init(Cipher.DECRYPT_MODE, key);            
+            this.ecipher.init(Cipher.ENCRYPT_MODE, this.key);
+            this.dcipher.init(Cipher.DECRYPT_MODE, this.key);            
             
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
-    public User(String uName, String groupName, String eKey) {
+    public User(String uName, String password, String eKey) {
+
         this.userName = uName;
-        this.groupName = groupName;
+        this.password = password;
 
         try {
             this.encodedKey = eKey;
@@ -57,11 +47,11 @@ public class User {
 
             this.ecipher = Cipher.getInstance("AES");
             this.dcipher = Cipher.getInstance("AES"); 
-            this.ecipher.init(Cipher.ENCRYPT_MODE, key);
-            this.dcipher.init(Cipher.DECRYPT_MODE, key); 
+            this.ecipher.init(Cipher.ENCRYPT_MODE, this.key);
+            this.dcipher.init(Cipher.DECRYPT_MODE, this.key);
 
         } catch (Exception e) {
-
+            e.printStackTrace();
         }
     }
 
@@ -69,28 +59,33 @@ public class User {
         return this.userName;
     }
 
-    public void setGroupName(String gName) {
-        this.groupName = gName;
+    public String getPassword() {
+        return this.password;
     }
 
-    public String getGroupName() {
-        return this.groupName;
+    public SecretKey getSecretKey() {
+        return this.key;
+    }
+
+    public String getEncryptionKey() {
+        return this.encodedKey;
     }
 
     public String encryptData(String rawData) {
 
         try {
 
-            // byte[] utf8 = rawData.getBytes("UTF8");
             byte[] utf8 = rawData.getBytes("UTF-8");
             byte[] enc = this.ecipher.doFinal(utf8);
 
-            // return Base64.getEncoder().encodeToString(enc);
             return URLEncoder.encode(Base64.getEncoder().encodeToString(enc), "UTF-8");
 
         } catch (javax.crypto.BadPaddingException e) {
+            e.printStackTrace();
         } catch (IllegalBlockSizeException e) {
+            e.printStackTrace();
         } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
         }
         return null;
     }
@@ -104,11 +99,13 @@ public class User {
             byte[] utf8 = this.dcipher.doFinal(dec);
 
             return new String(utf8, "UTF8");
-            // return new String(utf8, "ISO-8859-1");
 
         } catch (javax.crypto.BadPaddingException e) {
+            e.printStackTrace();
         } catch (IllegalBlockSizeException e) {
+            e.printStackTrace();
         } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
         }
         return null;
     }
