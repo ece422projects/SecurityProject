@@ -1,0 +1,15 @@
+.text_container {
+  display: flex;
+  flex-flow: column;
+  width: 100%;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+#textEditor {
+  height: 500px;
+  width: 80%;
+  white-space: pre-wrap;
+  margin-bottom: 15px;
+  overflow: auto;
+}
