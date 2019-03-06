@@ -193,8 +193,17 @@
    * @param {HTMLElement} link The link that was clicked
    */
   function menuItemListener( link ) {
-    console.log( "Task ID - " + taskItemInContext.getAttribute("data-id") + ", Task action - " + link.getAttribute("data-action"));
+    console.log("Context Menu clicked");
+    console.log( "Task ID - " + itemInContext.querySelector(".label").innerHTML + ", Task action - " + link.getAttribute("data-action"));
     toggleMenuOff();
+    if (link.getAttribute("data-action") == "Rename"){
+      modal = document.getElementById('renameModal');
+      modal.style.display = "block";
+    }
+    if (link.getAttribute("data-action") == "Permissions"){
+      modal = document.getElementById('permissionsModal');
+      modal.style.display = "block";
+    }
   }
 
   /**
