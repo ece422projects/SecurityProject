@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.InetAddress;
+import java.net.URI;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
@@ -32,17 +33,50 @@ public class SFSServer {
     HttpServer server = HttpServer.create(new InetSocketAddress("localhost", 8000), 0);
     // server.createContext("/info", new InfoHandler());
     // server.createContext("/login", new GetHandler());
-    server.createContext("/login", new DataHandler());
+    server.createContext("/", new DataHandler());
     server.setExecutor(null);
     server.start();
   }
 
   static class DataHandler implements HttpHandler {
+    //**Route client to login page first, then home page, generate a cookie?
     public void handle(HttpExchange t) throws IOException {
-
+      String root = "/";
       // Returns the body of GET/POST request
-      System.out.println(t.getRequestURI());
-
+      URI uri = t.getRequestURI();
+      String path = uri.getPath().substring(1);
+      System.out.println(path);
+      File file = new File(path).getCanonicalFile();
+      if (!file.isFile()) {
+         // Object does not exist or is not a file: reject with 404 error.
+         String response = "404 (Not Found)\n";
+         t.sendResponseHeaders(404, response.length());
+         OutputStream os = t.getResponseBody();
+         os.write(response.getBytes());
+         os.close();
+       }
+       else{
+         String mime = "text/html";
+         if(path.substring(path.length()-3).equals(".js")){
+           mime = "application/javascript";
+         }
+         if(path.substring(path.length()-4).equals(".css")){
+            mime = "text/css";
+          }
+         System.out.println("MIME Type: " + mime);
+         Headers h = t.getResponseHeaders();
+         h.set("Content-Type", mime);
+         t.sendResponseHeaders(200, 0);
+         OutputStream os = t.getResponseBody();
+         FileInputStream fs = new FileInputStream(file);
+         final byte[] buffer = new byte[0x10000];
+         int count = 0;
+         while ((count = fs.read(buffer)) >= 0) {
+           os.write(buffer,0,count);
+         }
+         fs.close();
+         os.close();
+       }
       // Returns if it is GET or POST request
       System.out.println(t.getRequestMethod());
 
