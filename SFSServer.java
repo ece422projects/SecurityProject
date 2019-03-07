@@ -28,6 +28,8 @@ import java.lang.*;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import org.json.simple.JSONObject;
+import org.json.simple.JSONArray;
 
 
 public class SFSServer {
@@ -131,8 +133,18 @@ public class SFSServer {
       System.out.println("Query: " + query);
       Map<String, String> params = queryToMap(query);
       //TO DO: make response dynamic, dependent on current path and permissions
-      //for now, return same thing every time
-      String responseBody = "[{\"name\":\"file.txt\",\"type\":\"file\",\"permissions\":\"\",\"group\":\"\"}]";
+      //for now, return hard coded thing
+      String responseBody = "";
+      if(path.equals("Home/")){ //userHome remains generic on the client, server should resolve actual home using cookie
+        responseBody = "[{\"name\":\"file.txt\",\"type\":\"file\",\"permissions\":\"\",\"group\":\"\"}, {\"name\":\"blog\",\"type\":\"folder\",\"permissions\":\"\",\"group\":\"\"}]";
+      }
+      if(path.equals("Home/blog/")){
+        responseBody = "[{\"name\":\"blog.txt\",\"type\":\"file\",\"permissions\":\"\",\"group\":\"\"}]";
+      }
+      if(path.equals("Users/")){
+       responseBody = "[{\"name\":\"OtherUser\",\"type\":\"folder\",\"permissions\":\"\",\"group\":\"\"}]";
+      }
+
       Headers h = t.getResponseHeaders();
       h.set("Content-Type", String.format("application/json; charset=%s", CHARSET));
       final byte[] rawResponseBody = responseBody.getBytes(CHARSET);

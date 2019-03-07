@@ -1,4 +1,4 @@
-var currentPath = "userHome/";
+var currentPath = "Home/";
 
 function getInfo(url, cFunction){
     var xhttp;
@@ -13,7 +13,7 @@ function getInfo(url, cFunction){
 }
 
 function updateInfo(){
-  //do UI stuff
+  //Just a wrapper for getting info and then updating UI
   console.log("updateInfo");
   var url = "getInodes.t?path="+currentPath;
   getInfo(url, updateContent);
