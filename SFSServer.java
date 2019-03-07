@@ -28,8 +28,9 @@ import java.lang.*;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import org.json.simple.JSONObject;
-import org.json.simple.JSONArray;
+//import org.json.JSONObject;
+//import org.json.JSONArray;
+import javax.json.*;
 
 
 public class SFSServer {
@@ -135,14 +136,23 @@ public class SFSServer {
       //TO DO: make response dynamic, dependent on current path and permissions
       //for now, return hard coded thing
       String responseBody = "";
-      if(path.equals("Home/")){ //userHome remains generic on the client, server should resolve actual home using cookie
-        responseBody = "[{\"name\":\"file.txt\",\"type\":\"file\",\"permissions\":\"\",\"group\":\"\"}, {\"name\":\"blog\",\"type\":\"folder\",\"permissions\":\"\",\"group\":\"\"}]";
+      if(query.equals("path=Home/")){ //userHome remains generic on the client, server should resolve actual home using cookie
+        // responseBody = "[{\"name\":\"file.txt\",\"type\":\"file\",\"permissions\":\"\",\"group\":\"\"}, {\"name\":\"blog\",\"type\":\"folder\",\"permissions\":\"\",\"group\":\"\"}]";
+        JsonArray arr = Json.createArrayBuilder()
+          .add(Json.createObjectBuilder()
+          .add("name","file.txt")
+          .add("type","file"))
+          .add(Json.createObjectBuilder()
+          .add("name","blog")
+          .add("type","folder")).build();
+        responseBody = arr.toString();
+        System.out.println("Response Body: "+responseBody);
       }
       if(path.equals("Home/blog/")){
-        responseBody = "[{\"name\":\"blog.txt\",\"type\":\"file\",\"permissions\":\"\",\"group\":\"\"}]";
+        // responseBody = "[{\"name\":\"blog.txt\",\"type\":\"file\",\"permissions\":\"\",\"group\":\"\"}]";
       }
       if(path.equals("Users/")){
-       responseBody = "[{\"name\":\"OtherUser\",\"type\":\"folder\",\"permissions\":\"\",\"group\":\"\"}]";
+       // responseBody = "[{\"name\":\"OtherUser\",\"type\":\"folder\",\"permissions\":\"\",\"group\":\"\"}]";
       }
 
       Headers h = t.getResponseHeaders();
