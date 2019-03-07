@@ -23,9 +23,36 @@ import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
 import java.util.Map;
+import java.util.HashMap;
 import java.lang.*;
 
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+
+
 public class SFSServer {
+  private static final Charset CHARSET = StandardCharsets.UTF_8;
+
+  public static void printRequestInfo(HttpExchange t) throws IOException{
+    // Returns if it is GET or POST request
+    System.out.println(t.getRequestMethod());
+
+    String request;
+    InputStream in = t.getRequestBody();
+    System.out.println("NUMBER OF BYTES AVALIABLE: " + String.valueOf(in.available()));
+    try {
+      ByteArrayOutputStream out = new ByteArrayOutputStream();
+      byte buf[] = new byte[4096];
+      for (int n = in.read(buf); n > 0; n = in.read(buf)) {
+          out.write(buf, 0, n);
+      }
+      request = new String(out.toByteArray(), "US-ASCII");
+      System.out.println("REQUEST: " + request);
+    }
+    finally {
+      in.close();
+    }
+  }
 
   public static void main(String[] args) throws Exception {
 
@@ -33,20 +60,27 @@ public class SFSServer {
     HttpServer server = HttpServer.create(new InetSocketAddress("localhost", 8000), 0);
     // server.createContext("/info", new InfoHandler());
     // server.createContext("/login", new GetHandler());
-    server.createContext("/", new DataHandler());
+    server.createContext("/", new StaticRequestHandler());
+    server.createContext("/getInodes.t", new InodeRequestHandler());
     server.setExecutor(null);
     server.start();
   }
 
-  static class DataHandler implements HttpHandler {
-    //**Route client to login page first, then home page, generate a cookie?
+  static class StaticRequestHandler implements HttpHandler {
+    /**
+      Use this handler for serving things that do not change such as css
+      or javascript. Users do not need to be logged in to look at functional
+      pages.
+    **/
     public void handle(HttpExchange t) throws IOException {
       String root = "/";
       // Returns the body of GET/POST request
       URI uri = t.getRequestURI();
+      printRequestInfo(t);
       String path = uri.getPath().substring(1);
       System.out.println(path);
       File file = new File(path).getCanonicalFile();
+
       if (!file.isFile()) {
          // Object does not exist or is not a file: reject with 404 error.
          String response = "404 (Not Found)\n";
@@ -62,14 +96,16 @@ public class SFSServer {
          }
          if(path.substring(path.length()-4).equals(".css")){
             mime = "text/css";
-          }
-         System.out.println("MIME Type: " + mime);
+         }
+
          Headers h = t.getResponseHeaders();
          h.set("Content-Type", mime);
          t.sendResponseHeaders(200, 0);
+
          OutputStream os = t.getResponseBody();
          FileInputStream fs = new FileInputStream(file);
          final byte[] buffer = new byte[0x10000];
+
          int count = 0;
          while ((count = fs.read(buffer)) >= 0) {
            os.write(buffer,0,count);
@@ -77,56 +113,45 @@ public class SFSServer {
          fs.close();
          os.close();
        }
-      // Returns if it is GET or POST request
-      System.out.println(t.getRequestMethod());
-
-      String request;
-      InputStream in = t.getRequestBody();
-      System.out.println("NUMBER OF BYTES AVALIABLE: " + String.valueOf(in.available()));
-      try {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        byte buf[] = new byte[4096];
-        for (int n = in.read(buf); n > 0; n = in.read(buf)) {
-            out.write(buf, 0, n);
-        }
-        request = new String(out.toByteArray(), "US-ASCII");
-        System.out.println("REQUEST: " + request);
-    } finally {
-        in.close();
-    }
-
     }
   }
 
-  static class InfoHandler implements HttpHandler {
+  static class LoginHandler implements HttpHandler {
     public void handle(HttpExchange t) throws IOException {
-      String response = "Use /get to download a PDF";
-      t.sendResponseHeaders(200, response.length());
-      OutputStream os = t.getResponseBody();
-      os.write(response.getBytes());
-      os.close();
+      printRequestInfo(t);
     }
   }
 
-  static class GetHandler implements HttpHandler {
+  static class InodeRequestHandler implements HttpHandler {
     public void handle(HttpExchange t) throws IOException {
-
-      // add the required response header for a PDF file
+      URI uri = t.getRequestURI();
+      String path = uri.getPath();
+      String query = uri.getQuery();
+      System.out.println("Path: " + path);
+      System.out.println("Query: " + query);
+      Map<String, String> params = queryToMap(query);
+      //TO DO: make response dynamic, dependent on current path and permissions
+      //for now, return same thing every time
+      String responseBody = "[{\"name\":\"file.txt\",\"type\":\"file\",\"permissions\":\"\",\"group\":\"\"}]";
       Headers h = t.getResponseHeaders();
-      h.add("Content-Type", "application/pdf");
-
-      // a PDF (you provide your own!)
-      File file = new File ("c:/temp/doc.pdf");
-      byte [] bytearray  = new byte [(int)file.length()];
-      FileInputStream fis = new FileInputStream(file);
-      BufferedInputStream bis = new BufferedInputStream(fis);
-      bis.read(bytearray, 0, bytearray.length);
-
-      // ok, we are ready to send the response.
-      t.sendResponseHeaders(200, file.length());
-      OutputStream os = t.getResponseBody();
-      os.write(bytearray,0,bytearray.length);
-      os.close();
+      h.set("Content-Type", String.format("application/json; charset=%s", CHARSET));
+      final byte[] rawResponseBody = responseBody.getBytes(CHARSET);
+      t.sendResponseHeaders(200, rawResponseBody.length);
+      t.getResponseBody().write(rawResponseBody);
+      t.close();
     }
+  }
+
+  private static Map<String, String> queryToMap(String query) {
+    Map<String, String> result = new HashMap<>();
+    for (String param : query.split("&")) {
+        String[] entry = param.split("=");
+        if (entry.length > 1) {
+            result.put(entry[0], entry[1]);
+        }else{
+            result.put(entry[0], "");
+        }
+    }
+    return result;
   }
 }

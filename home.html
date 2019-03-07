@@ -8,7 +8,7 @@
         <link rel="stylesheet" type="text/css" href="styles/sfs.css">
         <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
     </head>
-  <body>
+  <body onload="updateInfo()">
     <ul class="nav">
       <li>
         <a id="Backbtn" class="leftFloat"><i class="fas fa-chevron-left"></i></a>
@@ -49,35 +49,15 @@
       </ul>
     </div>
 
-    <div class="content_container leftFloat">
+    <!-- <div class="content_container leftFloat">
       <div class="item">
         <span class="file"><i class="fas fa-file"></i></span>
-        <span class="label">Filename</span>
-      </div>
-      <div class="item">
-        <span class="file"><i class="fas fa-file"></i></span>
-        <span class="label">File</span>
+        <span class="label"></span>
       </div>
       <div class="item">
         <span class="folder"><i class="fas fa-folder"></i></span>
-        <span class="label">Pictures</span>
-      </div>
-      <div class="item">
-        <span class="folder"><i class="fas fa-folder"></i></span>
-        <span class="label">Pictures</span>
-      </div>
-      <div class="item">
-        <span class="folder"><i class="fas fa-folder"></i></span>
-        <span class="label">Pictures</span>
-      </div>
-      <div class="item">
-        <span class="folder"><i class="fas fa-folder"></i></span>
-        <span class="label">Pictures</span>
-      </div>
-      <div class="item">
-        <span class="folder"><i class="fas fa-folder"></i></span>
-        <span class="label">Pictures</span>
-      </div>
+        <span class="label"></span>
+      </div> -->
 
       </div>
       <div id="context-menu" class="context-menu">
@@ -185,6 +165,7 @@
       </div>
     </div>
   </body>
+  <script src="javascript/dataRequest.js"></script>
   <script src="javascript/dropdown.js"></script>
   <script src="javascript/contextMenu.js"></script>
   <script src="javascript/grpModal.js"></script>
