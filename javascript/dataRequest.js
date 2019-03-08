@@ -1,4 +1,7 @@
-var currentPath = "Home/";
+var currentPath = "/Home";
+var requestedPath = "/Home";
+
+//Universal data request functions//
 
 function getInfo(url, cFunction){
     var xhttp;
@@ -14,15 +17,33 @@ function getInfo(url, cFunction){
 
 function updateInfo(){
   //Just a wrapper for getting info and then updating UI
-  console.log("updateInfo");
-  var url = "getInodes.t?path="+currentPath;
+  console.log(requestedPath);
+  var url = "getInodes.t?path="+requestedPath;
   getInfo(url, updateContent);
+}
+function removeItems(container){
+  var items = container.querySelectorAll(".item");
+  var i;
+  for(i=0; i<items.length; i++){
+    container.removeChild(items[i]);
+  }
+}
+
+function updateCurrentPath(){
+  currentPath = requestedPath;
+  document.getElementById("currentPath").innerHTML = currentPath;
 }
 
 function updateContent(xhttp){
   console.log("Response: " + xhttp.responseText);
   var content_container = document.getElementsByClassName("content_container")[0];
+  removeItems(content_container);
   var inodes = JSON.parse(xhttp.responseText);
+
+  if(inodes[0]=="Denied"){
+    return; //could do a toast here, polish
+  }
+  updateCurrentPath();
 
   var itemDiv;
   var itemSpan1;
@@ -56,7 +77,43 @@ function updateContent(xhttp){
       itemSpan1.appendChild(itemIcon);
       itemDiv.appendChild(itemSpan1);
       itemDiv.appendChild(itemSpan2);
+      itemDiv.addEventListener("dblclick", descendDir(itemDiv, inodes[i].name));
     }
     content_container.appendChild(itemDiv);
   }
 }
+
+//Element specific data request functions//
+function descendDir(element, name){
+  return function(){
+    requestedPath = currentPath+"/"+name;
+    updateInfo();
+  }
+}
+
+function goBack(){
+    if(currentPath!="/Home" && currentPath!="/Users" && currentPath!="/Documents"){
+      console.log("we get here");
+      requestedPath = currentPath.substr(0, currentPath.lastIndexOf("/"));
+    }
+    updateInfo();
+}
+
+document.getElementById("Backbtn").addEventListener("click", goBack);
+
+function jumpTo(element){
+  return function(){
+    requestedPath = "/"+element.innerHTML;
+    updateInfo();
+  }
+}
+
+function assignDlinks(){
+  var dLinks = document.getElementsByClassName("dLink");
+  var i;
+  for(i=0; i<dLinks.length; i++){
+    dLinks[i].addEventListener("click", jumpTo(dLinks[i]));
+  }
+}
+
+assignDlinks();

@@ -136,7 +136,7 @@ public class SFSServer {
       //TO DO: make response dynamic, dependent on current path and permissions
       //for now, return hard coded thing
       String responseBody = "";
-      if(query.equals("path=Home/")){ //userHome remains generic on the client, server should resolve actual home using cookie
+      if(params.get("path").equals("/Home")){ //userHome remains generic on the client, server should resolve actual home using cookie
         // responseBody = "[{\"name\":\"file.txt\",\"type\":\"file\",\"permissions\":\"\",\"group\":\"\"}, {\"name\":\"blog\",\"type\":\"folder\",\"permissions\":\"\",\"group\":\"\"}]";
         JsonArray arr = Json.createArrayBuilder()
           .add(Json.createObjectBuilder()
@@ -148,8 +148,14 @@ public class SFSServer {
         responseBody = arr.toString();
         System.out.println("Response Body: "+responseBody);
       }
-      if(path.equals("Home/blog/")){
+      if(params.get("path").equals("/Home/blog")){
         // responseBody = "[{\"name\":\"blog.txt\",\"type\":\"file\",\"permissions\":\"\",\"group\":\"\"}]";
+        JsonArray arr = Json.createArrayBuilder()
+          .add(Json.createObjectBuilder()
+          .add("name","blog1.txt")
+          .add("type","file")).build();
+        responseBody = arr.toString();
+        System.out.println("Response Body: "+responseBody);
       }
       if(path.equals("Users/")){
        // responseBody = "[{\"name\":\"OtherUser\",\"type\":\"folder\",\"permissions\":\"\",\"group\":\"\"}]";
