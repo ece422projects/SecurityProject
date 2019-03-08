@@ -71,9 +71,7 @@
   var windowWidth;
   var windowHeight;
 
-  /**
-   * Initialise our application's code.
-   */
+
   function init() {
     contextListener();
     clickListener();
@@ -81,9 +79,7 @@
     resizeListener();
   }
 
-  /**
-   * Listens for contextmenu events.
-   */
+
   function contextListener() {
     document.addEventListener( "contextmenu", function(e) {
       itemInContext = clickInsideElement( e, itemClassName );
@@ -99,9 +95,7 @@
     });
   }
 
-  /**
-   * Listens for click events.
-   */
+
   function clickListener() {
     document.addEventListener( "click", function(e) {
       var clickeElIsLink = clickInsideElement( e, contextMenuLinkClassName );
@@ -118,9 +112,7 @@
     });
   }
 
-  /**
-   * Listens for keyup events.
-   */
+
   function keyupListener() {
     window.onkeyup = function(e) {
       if ( e.keyCode === 27 ) {
@@ -129,18 +121,14 @@
     }
   }
 
-  /**
-   * Window resize event listener
-   */
+
   function resizeListener() {
     window.onresize = function(e) {
       toggleMenuOff();
     };
   }
 
-  /**
-   * Turns the custom context menu on.
-   */
+
   function toggleMenuOn() {
     if ( menuState !== 1 ) {
       menuState = 1;
@@ -148,9 +136,7 @@
     }
   }
 
-  /**
-   * Turns the custom context menu off.
-   */
+
   function toggleMenuOff() {
     if ( menuState !== 0 ) {
       menuState = 0;
@@ -158,11 +144,7 @@
     }
   }
 
-  /**
-   * Positions the menu properly.
-   *
-   * @param {Object} e The event
-   */
+
   function positionMenu(e) {
     clickCoords = getPosition(e);
     clickCoordsX = clickCoords.x;
@@ -187,11 +169,7 @@
     }
   }
 
-  /**
-   * Dummy action function that logs an action when a menu item link is clicked
-   *
-   * @param {HTMLElement} link The link that was clicked
-   */
+
   function menuItemListener( link ) {
     console.log("Context Menu clicked");
     console.log( "Task ID - " + itemInContext.querySelector(".label").innerHTML + ", Task action - " + link.getAttribute("data-action"));
@@ -204,7 +182,10 @@
       modal = document.getElementById('permissionsModal');
       modal.style.display = "block";
     }
+
+
   }
+
 
   /**
    * Run the app.

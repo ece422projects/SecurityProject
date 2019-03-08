@@ -1,4 +1,7 @@
 var currentPath = "/Home";
+if(window.location.hash.substring(1)!=""){
+  currentPath = window.location.hash.substring(1)
+}
 var requestedPath = "/Home";
 
 //Universal data request functions//
@@ -18,7 +21,7 @@ function getInfo(url, cFunction){
 function updateInfo(){
   //Just a wrapper for getting info and then updating UI
   console.log(requestedPath);
-  var url = "getInodes.t?path="+requestedPath;
+  var url = "/getInodes.t?path="+requestedPath;
   getInfo(url, updateContent);
 }
 function removeItems(container){
@@ -117,3 +120,7 @@ function assignDlinks(){
 }
 
 assignDlinks();
+//To do make it so that the file is added in
+function viewFile(){
+  window.location.replace("/viewFile?filename=aplus#"+currentPath);
+}

@@ -7,6 +7,7 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.InetAddress;
 import java.net.URI;
+import java.util.UUID;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
@@ -31,6 +32,10 @@ import java.nio.charset.StandardCharsets;
 //import org.json.JSONObject;
 //import org.json.JSONArray;
 import javax.json.*;
+import org.jsoup.*;
+import org.jsoup.nodes.*;
+import java.io.Writer;
+import java.io.PrintWriter;
 
 
 public class SFSServer {
@@ -65,6 +70,8 @@ public class SFSServer {
     // server.createContext("/login", new GetHandler());
     server.createContext("/", new StaticRequestHandler());
     server.createContext("/getInodes.t", new InodeRequestHandler());
+    server.createContext("/viewFile", new TextEditorHandler());
+    server.createContext("/editFile", new TextEditorHandler());
     server.setExecutor(null);
     server.start();
   }
@@ -116,6 +123,50 @@ public class SFSServer {
          fs.close();
          os.close();
        }
+    }
+  }
+
+  static class TextEditorHandler implements HttpHandler {
+    public void handle(HttpExchange t) throws IOException {
+      printRequestInfo(t);
+      URI uri = t.getRequestURI();
+      String path = uri.getPath();
+      String query = uri.getQuery();
+      System.out.println("Path: " + path);
+      System.out.println("Query: " + query);
+
+      File file = new File("textEditor.html").getCanonicalFile();
+      Document doc = Jsoup.parse(file, "UTF-8");
+      OutputStream os = t.getResponseBody();
+
+      Headers h = t.getResponseHeaders();
+      h.set("Content-Type", "text/html");
+      t.sendResponseHeaders(200, 0);
+
+      if(path.equals("/viewFile")){
+        System.out.println("Path was /viewFile");
+        doc.getElementById("textEditor").attr("readonly","true");
+        String someText = "My awesome blog!";
+        doc.getElementById("textEditor").text(someText);
+        String html = doc.html();
+        Writer writer = new PrintWriter(os);
+        writer.write(html);
+        writer.close();
+      }
+
+      if(path.equals("/editFile")){
+        System.out.println("Path was /editFile");
+        FileInputStream fs = new FileInputStream(file);
+        final byte[] buffer = new byte[0x10000];
+
+        int count = 0;
+        while ((count = fs.read(buffer)) >= 0) {
+          os.write(buffer,0,count);
+        }
+        fs.close();
+      }
+
+      os.close();
     }
   }
 
