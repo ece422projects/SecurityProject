@@ -173,6 +173,7 @@
   function menuItemListener( link ) {
     console.log("Context Menu clicked");
     console.log( "Task ID - " + itemInContext.querySelector(".label").innerHTML + ", Task action - " + link.getAttribute("data-action"));
+    var filename = itemInContext.querySelector(".label").innerHTML;
     toggleMenuOff();
     if (link.getAttribute("data-action") == "Rename"){
       modal = document.getElementById('renameModal');
@@ -183,6 +184,13 @@
       modal.style.display = "block";
     }
 
+    if (link.getAttribute("data-action") == "View"){
+      window.location.replace("/viewFile?file="+filename+"#"+currentPath);
+    }
+
+    if (link.getAttribute("data-action") == "Edit"){
+      window.location.replace("/editFile?file="+filename+"#"+currentPath);
+    }
 
   }
 

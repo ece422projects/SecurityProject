@@ -1,4 +1,7 @@
-var currentPath = window.location.hash.substring(1)
+var currentPath = window.location.hash.substring(1);
+console.log("Current Path: "+currentPath);
+var filename = window.location.search;
+console.log("Filename: "+filename);
 
 function saveFile(){
   //Do post here

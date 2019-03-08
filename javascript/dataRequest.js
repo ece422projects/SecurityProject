@@ -1,8 +1,10 @@
 var currentPath = "/Home";
-if(window.location.hash.substring(1)!=""){
-  currentPath = window.location.hash.substring(1)
-}
 var requestedPath = "/Home";
+
+if(window.location.hash.substring(1)!=""){
+  requestedPath = window.location.hash.substring(1)
+  console.log("We recieve a hashed path: ");
+}
 
 //Universal data request functions//
 
@@ -71,6 +73,7 @@ function updateContent(xhttp){
       itemSpan1.appendChild(itemIcon);
       itemDiv.appendChild(itemSpan1);
       itemDiv.appendChild(itemSpan2);
+      itemDiv.addEventListener("dblclick", viewFile(inodes[i].name));
     }
 
     if(inodes[i].type=="folder"){
@@ -80,14 +83,14 @@ function updateContent(xhttp){
       itemSpan1.appendChild(itemIcon);
       itemDiv.appendChild(itemSpan1);
       itemDiv.appendChild(itemSpan2);
-      itemDiv.addEventListener("dblclick", descendDir(itemDiv, inodes[i].name));
+      itemDiv.addEventListener("dblclick", descendDir(inodes[i].name));
     }
     content_container.appendChild(itemDiv);
   }
 }
 
 //Element specific data request functions//
-function descendDir(element, name){
+function descendDir(name){
   return function(){
     requestedPath = currentPath+"/"+name;
     updateInfo();
@@ -121,6 +124,8 @@ function assignDlinks(){
 
 assignDlinks();
 //To do make it so that the file is added in
-function viewFile(){
-  window.location.replace("/viewFile?filename=aplus#"+currentPath);
+function viewFile(filename){
+  return function (){
+    window.location.replace("/viewFile?file="+filename+"#"+currentPath);
+  }
 }
