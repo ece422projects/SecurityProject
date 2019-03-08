@@ -13,27 +13,21 @@ public class Controller {
 
     public void signUp(String username, String password) {
 
-        User user = new User(username, password);
-        mySQLDatabaseHandler.addToUsers(user);
-        mySQLDatabaseHandler.addUserDirectory(user);
-        commandLineHandler.createUserDirectory(user);
+        mySQLDatabaseHandler.signUp(username, password);
     }
 
-    public User login(String username, String password) {
+    public ArrayList<String> login(String username, String password) {
 
-        if (mySQLDatabaseHandler.isCorrectLogin(username, password)) {
-            return mySQLDatabaseHandler.getFromUsers(username, password);
-        }
-        else {
+        Boolean correctLogin = mySQLDatabaseHandler.logIn(username, password);
+        
+        if (correctLogin) {
+            return commandLineHandler.checkForCorruption(username);
+        } else {
             return null;
         }
     }
 
-    public ArrayList<String> openRootDirectory() {
-        return mySQLDatabaseHandler.openRootDirectory();
-    }
-
-    public void addToGroup(User user, String groupname, ArrayList<String> usernameList) {
+    public void addToGroup(String groupname, ArrayList<String> usernameList) {
 
         for (String username : usernameList) {
             mySQLDatabaseHandler.addToGroups(groupname, username);
@@ -47,104 +41,60 @@ public class Controller {
         }      
     }
 
-    public void editDirectoryPermissions(User user, String directorypath, String directoryname, String groupname, String canRead, String canWrite) {
+    public void addDirectory(String username, String path) {
 
-        mySQLDatabaseHandler.addDirectoryPermissions(user, directorypath, directoryname, groupname, canRead, canWrite);
-
+        mySQLDatabaseHandler.addDirectory(username, "D", path);
     }
 
-    public void editFilePermissions(User user, String filepath, String filename, String groupname, String canRead, String canWrite) {
+    public void addFile(String username, String path, String fileBody) {
 
-        mySQLDatabaseHandler.addFilePermissions(user, filepath, filename, groupname, canRead, canWrite);
-
+        mySQLDatabaseHandler.addFile(username, "F", path, fileBody);
     }
 
-    public void createDirectory(User user, String directorypath, String directoryname) {
+    public ArrayList<ArrayList<String>> openDirectory(String username, String path) {
 
-        mySQLDatabaseHandler.addToDirectories(user, directorypath, directoryname);
+        return mySQLDatabaseHandler.openDirectory(username, path);
     }
 
-    public ArrayList<ArrayList<String>> openDirectory(User user, String directorypath, String directoryname) {
+    public String openFile(String username, String path) {
 
-        return mySQLDatabaseHandler.openDirectory(user, directorypath, directoryname);
+        return mySQLDatabaseHandler.openFile(username, path);
     }
 
-    public String openFile(User user, String filepath, String filename) {
+    public boolean canEdit(String username, String path) {
 
-        return mySQLDatabaseHandler.openFile(user, filepath, filename);
+        return mySQLDatabaseHandler.canEditFile(username, path);
     }
 
-    public Boolean canRenameDirectory(User user, String directorypath, String directoryname) {
+    public void editFile(String username, String path, String newFilebody) {
 
-        if (mySQLDatabaseHandler.canEditDirectory(user, directorypath, directoryname)) {
-            return true;
-        } else {
-            return false;
-        }
+        mySQLDatabaseHandler.editFile(username, path, newFilebody);
     }
 
-    public void renameDirectory(User user, String directorypath, String directoryname, String newdirectoryname) {
-  
-        mySQLDatabaseHandler.renameDirectory(user, directorypath, directoryname, newdirectoryname);
+    public boolean canRename(String username, String path) {
+
+        return mySQLDatabaseHandler.isOwner(username, path);
     }
 
-    public Boolean canRenameFile(User user, String filepath, String filename) {
+    public void rename(String username, String path, String newName) {
 
-        if (mySQLDatabaseHandler.canEditFile(user, filepath, filename)) {
-            return true;
-        } else {
-            return false;
-        }
+        mySQLDatabaseHandler.rename(username, path, newName);
     }
 
-    public void renameFile(User user, String filepath, String filename, String newfilename) {
-  
-        mySQLDatabaseHandler.renameFile(user, filepath, filename, newfilename);
+    public boolean canDelete(String username, String path) {
+
+        return mySQLDatabaseHandler.isOwner(username, path);
     }
 
-    public Boolean canEditFile(User user, String filepath, String filename) {
+    public void delete(String username, String path) {
 
-        if (mySQLDatabaseHandler.canEditFile(user, filepath, filename)) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    public void editFile(User user, String filepath, String filename, String filebody) {
-
-        mySQLDatabaseHandler.addToFiles(user, filepath, filename, filebody);
-    }
-
-    public Boolean canDeleteFile(User user, String filepath, String filename) {
-
-        if (mySQLDatabaseHandler.isFileOwner(user, filepath, filename)) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    public void deleteFile(User user, String filepath, String filename) {
-  
-        mySQLDatabaseHandler.deleteFile(user, filepath, filename);
-    }
-
-    public Boolean canDeleteDirectory(User user, String directorypath, String directoryname) {
-
-        if (mySQLDatabaseHandler.isDirectoryOwner(user, directorypath, directoryname)) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    public void deleteDirectory(User user, String directorypath, String directoryname) {
-  
-        mySQLDatabaseHandler.deleteDirectory(user, directorypath, directoryname);
+        mySQLDatabaseHandler.delete(username, path);
     }
 
     public void close() {
+        commandLineHandler.deleteRootDirectory();
+        commandLineHandler.makeRootDirectory();
+        commandLineHandler.makePhysicalRecord();
         mySQLDatabaseHandler.close();
     }
 }

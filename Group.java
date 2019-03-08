@@ -23,9 +23,8 @@ public class Group {
         return this.groupMembers;
     }
 
-    public void addGroupMember(User u) {
-        u.setGroupName(this.groupName);
-        this.groupMembers.add(u);
+    public void addGroupMember(String username) {
+        this.groupMembers.add(user);
     }
 
     public void removeGroupMember(User u) {
