@@ -19,7 +19,7 @@ public class Controller {
     public ArrayList<String> login(String username, String password) {
 
         Boolean correctLogin = mySQLDatabaseHandler.logIn(username, password);
-        
+
         if (correctLogin) {
             return commandLineHandler.checkForCorruption(username);
         } else {
@@ -38,7 +38,7 @@ public class Controller {
 
         for (String username : usernameList) {
             mySQLDatabaseHandler.removeFromGroups(groupname, username);
-        }      
+        }
     }
 
     public void addDirectory(String username, String path) {
@@ -95,6 +95,7 @@ public class Controller {
         commandLineHandler.deleteRootDirectory();
         commandLineHandler.makeRootDirectory();
         commandLineHandler.makePhysicalRecord();
+        commandLineHandler.close();
         mySQLDatabaseHandler.close();
     }
 }

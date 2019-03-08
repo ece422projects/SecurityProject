@@ -43,6 +43,9 @@ function updateContent(xhttp){
   console.log("Response: " + xhttp.responseText);
   var content_container = document.getElementsByClassName("content_container")[0];
   removeItems(content_container);
+  if(xhttp.responseText=="Denied"){
+    
+  }
   var inodes = JSON.parse(xhttp.responseText);
 
   if(inodes[0]=="Denied"){

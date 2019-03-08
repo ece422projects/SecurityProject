@@ -41,7 +41,7 @@ import java.io.PrintWriter;
 public class SFSServer {
   private static final Charset CHARSET = StandardCharsets.UTF_8;
 
-  public static void printRequestInfo(HttpExchange t) throws IOException{
+  public static String printRequestInfo(HttpExchange t) throws IOException{
     // Returns if it is GET or POST request
     System.out.println(t.getRequestMethod());
 
@@ -60,6 +60,7 @@ public class SFSServer {
     finally {
       in.close();
     }
+    return request;
   }
 
   public static void main(String[] args) throws Exception {
@@ -72,6 +73,8 @@ public class SFSServer {
     server.createContext("/getInodes.t", new InodeRequestHandler());
     server.createContext("/viewFile", new TextEditorHandler());
     server.createContext("/editFile", new TextEditorHandler());
+    server.createContext("/loginhandler", new LoginHandler());
+    server.createContext("/signuphandler", new LoginHandler());
     server.setExecutor(null);
     server.start();
   }
@@ -79,11 +82,9 @@ public class SFSServer {
   static class StaticRequestHandler implements HttpHandler {
     /**
       Use this handler for serving things that do not change such as css
-      or javascript. Users do not need to be logged in to look at functional
-      pages.
+      or javascript.
     **/
     public void handle(HttpExchange t) throws IOException {
-      String root = "/";
       // Returns the body of GET/POST request
       URI uri = t.getRequestURI();
       printRequestInfo(t);
@@ -172,7 +173,36 @@ public class SFSServer {
 
   static class LoginHandler implements HttpHandler {
     public void handle(HttpExchange t) throws IOException {
-      printRequestInfo(t);
+      System.out.println("We made it to the login handler");
+      String requestBody = printRequestInfo(t);
+      URI uri = t.getRequestURI();
+      String path = uri.getPath();
+      String query = uri.getQuery();
+      System.out.println("Path: " + path);
+      System.out.println("Query: " + query);
+
+      Map<String, String> params = queryToMap(requestBody);
+      System.out.println("Uname: "+params.get("uname"));
+      System.out.println("PSW: "+params.get("psw"));
+
+      File file = new File("home.html").getCanonicalFile();
+
+      OutputStream os = t.getResponseBody();
+
+      Headers h = t.getResponseHeaders();
+      h.set("Content-Type", "text/html");
+      t.sendResponseHeaders(200, 0);
+
+      FileInputStream fs = new FileInputStream(file);
+      final byte[] buffer = new byte[0x10000];
+
+      int count = 0;
+      while ((count = fs.read(buffer)) >= 0) {
+        os.write(buffer,0,count);
+      }
+      fs.close();
+      os.close();
+
     }
   }
 
