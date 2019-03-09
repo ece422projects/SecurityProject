@@ -146,11 +146,11 @@ function newInodeRequest(element){
     var name;
     if(element.id=="okNameFile"){
       name = document.getElementById("newFileInput").value;
-      url = "/newFile?inode="+currentPath+name;
+      url = "/newFile?inode="+currentPath+"/"+name;
     }
     else{
       name = document.getElementById("newFolderInput").value;
-      url = "/newFolder?inode="+currentPath+name;
+      url = "/newFolder?inode="+currentPath+"/"+name;
     }
     xhttp.open("GET", url, false);
     xhttp.send();

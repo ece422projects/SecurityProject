@@ -42,6 +42,7 @@ import java.io.PrintWriter;
 
 public class SFSServer {
   private static final Charset CHARSET = StandardCharsets.UTF_8;
+  private static Controller controller = new Controller();
 
   public static String printRequestInfo(HttpExchange t) throws IOException{
     // Returns if it is GET or POST request
@@ -217,7 +218,11 @@ public class SFSServer {
       System.out.println("Path: " + path);
       System.out.println("Query: " + query);
       Map<String, String> params = queryToMap(requestBody);
-      
+      String inode = params.get("inode").replaceFirst("/Home","/users/stefan")
+      if(path.equals("/newFile")){
+
+        controller.addFile("stefan", inode, "");
+      }
     }
   }
 
