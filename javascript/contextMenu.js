@@ -178,6 +178,9 @@
     if (link.getAttribute("data-action") == "Rename"){
       modal = document.getElementById('renameModal');
       modal.style.display = "block";
+      var newName = document.getElementById("renameFile").value;
+      var filePath = currentPath+"/"+filename;
+      document.getElementById("okRenameFile").addEventListener("click", renameDeleteRequest(filePath, "Rename", newName));
     }
     if (link.getAttribute("data-action") == "Permissions"){
       modal = document.getElementById('permissionsModal');
@@ -185,15 +188,52 @@
     }
 
     if (link.getAttribute("data-action") == "View"){
-      window.location.replace("/viewFile?file="+filename+"#"+currentPath);
+      window.location.replace("/viewFile?file="+currentPath+"/"+filename+"#"+currentPath);
     }
 
     if (link.getAttribute("data-action") == "Edit"){
-      window.location.replace("/editFile?file="+filename+"#"+currentPath);
+      window.location.replace("/editFile?file="+currentPath+"/"+filename+"#"+currentPath);
+    }
+
+    if (link.getAttribute("data-action") == "Delete"){
+      var filePath = currentPath+"/"+filename;
+      renameDeleteRequest(filename, "Delete", "");
     }
 
   }
 
+  function renameDeleteRequest(path, request, newName){
+    return function(){
+      var xhttp;
+      xhttp=new XMLHttpRequest();
+      xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+          handleResponse(this);
+        }
+      };
+      var url;
+      if(request=="Rename"){
+        url = "/"+request+"?file="+path+"?newName="+newName;
+      }
+      else{
+        url = "/"+request+"?file="+path+"?;
+      }
+      xhttp.open("GET", url, false);
+      xhttp.send();
+      modal.style.display = "none";
+    }
+  }
+
+  function handleResponse(xhttp){
+    var response = xhttp.responseText;
+    if(response=="Denied"){
+      //notify user access denied
+      return;
+    }
+    //get info
+    var url = "/getInodes.t?path="+currentPath;
+    getInfo(url, updateContent);
+  }
 
   /**
    * Run the app.

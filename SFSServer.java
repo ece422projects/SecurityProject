@@ -136,10 +136,13 @@ public class SFSServer {
       String query = uri.getQuery();
       System.out.println("Path: " + path);
       System.out.println("Query: " + query);
+      Map<String, String> params = queryToMap(query);
 
       File file = new File("textEditor.html").getCanonicalFile();
       Document doc = Jsoup.parse(file, "UTF-8");
       OutputStream os = t.getResponseBody();
+      String html = "";
+      Writer writer = new PrintWriter(os);
 
       Headers h = t.getResponseHeaders();
       h.set("Content-Type", "text/html");
@@ -150,25 +153,21 @@ public class SFSServer {
         doc.getElementById("textEditor").attr("readonly","true");
         String someText = "My awesome blog!";
         doc.getElementById("textEditor").text(someText);
+        doc.getElementById("filename").text(params.get("file"));
         // doc.getElementById("saveLI").remove();
         doc.getElementById("saveFile").remove();
-        String html = doc.html();
-        Writer writer = new PrintWriter(os);
-        writer.write(html);
-        writer.close();
+        html = doc.html();
+
       }
 
       if(path.equals("/editFile")){
         System.out.println("Path was /editFile");
-        FileInputStream fs = new FileInputStream(file);
-        final byte[] buffer = new byte[0x10000];
-
-        int count = 0;
-        while ((count = fs.read(buffer)) >= 0) {
-          os.write(buffer,0,count);
-        }
-        fs.close();
+        doc.getElementById("filename").text(params.get("file"));
+        html = doc.html();
       }
+
+      writer.write(html);
+      writer.close();
 
       if(path.equals("/saveFile")){
         //save file
@@ -259,5 +258,24 @@ public class SFSServer {
         }
     }
     return result;
+  }
+
+  private static void redirectToLogin(HttpExchange t) throws IOException{
+    File file = new File("login_signup.html").getCanonicalFile();
+
+    Headers h = t.getResponseHeaders();
+    h.set("Content-Type", "text/html");
+    t.sendResponseHeaders(200, 0);
+
+    OutputStream os = t.getResponseBody();
+    FileInputStream fs = new FileInputStream(file);
+    final byte[] buffer = new byte[0x10000];
+
+    int count = 0;
+    while ((count = fs.read(buffer)) >= 0) {
+      os.write(buffer,0,count);
+    }
+    fs.close();
+    os.close();
   }
 }
