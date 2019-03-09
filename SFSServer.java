@@ -68,8 +68,7 @@ public class SFSServer {
 
   public static void main(String[] args) throws Exception {
 
-    InetAddress IP = InetAddress.getByName("localhost");
-    HttpServer server = HttpServer.create(new InetSocketAddress("localhost", 8000), 0);
+    HttpServer server = HttpServer.create(new InetSocketAddress("10.2.14.222", 4000), 0);
     // server.createContext("/info", new InfoHandler());
     // server.createContext("/login", new GetHandler());
     server.createContext("/", new StaticRequestHandler());
@@ -200,6 +199,12 @@ public class SFSServer {
       String responseBody = "/home.html";
       Headers h = t.getResponseHeaders();
 
+      if (path.equals("/signuphandler")) {
+        controller.signUp(params.get("uname"), params.get("psw"));
+      } else {
+        controller.login(params.get("uname"), params.get("psw"));
+      }
+
       h.set("Content-Type", String.format("text/plain; charset=%s", CHARSET));
       final byte[] rawResponseBody = responseBody.getBytes(CHARSET);
       t.sendResponseHeaders(200, rawResponseBody.length);
@@ -213,14 +218,14 @@ public class SFSServer {
     public void handle(HttpExchange t) throws IOException{
       String requestBody = printRequestInfo(t);
       URI uri = t.getRequestURI();
-      String path = uri.getPath();
+      String path = uri.getPath().trim();
       String query = uri.getQuery();
       System.out.println("Path: " + path);
       System.out.println("Query: " + query);
       Map<String, String> params = queryToMap(requestBody);
       String inode = params.get("inode").replaceFirst("/Home","/users/stefan");
       if(path.equals("/newFile")){
-
+        System.out.println("IN HERE");
         controller.addFile("stefan", inode, "");
       }
     }

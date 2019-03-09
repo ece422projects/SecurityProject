@@ -140,6 +140,8 @@ function newInodeRequest(element){
     xhttp.onreadystatechange = function() {
       if (this.readyState == 4 && this.status == 200) {
         getInfo("/getInodes.t?path="+currentPath, updateContent);
+        document.getElementById("folderModal").style.display = "none";
+        document.getElementById("fileModal").style.display = "none";
       }
     };
     var url;
@@ -156,3 +158,10 @@ function newInodeRequest(element){
     xhttp.send();
   }
 }
+var okNameFile = document.getElementById("okNameFile");
+okNameFile.addEventListener("click",newInodeRequest(okNameFile));
+
+var okNameFolder = document.getElementById("okNameFolder");
+okNameFile.addEventListener("click",newInodeRequest(okNameFolder));
+
+
