@@ -22,7 +22,7 @@ public class Controller {
 
         SystemUser systemUser = mySQLDatabaseHandler.returnSystemUser();
         Boolean correctLogin = mySQLDatabaseHandler.logIn(username, password);
-        
+
         if (correctLogin) {
             ArrayList<String> encryptedFileNames = commandLineHandler.checkForCorruption(username);
             ArrayList<String> decryptedNames = new ArrayList<String>();
@@ -49,7 +49,7 @@ public class Controller {
 
         for (String username : usernameList) {
             mySQLDatabaseHandler.removeFromGroups(groupname, username);
-        }      
+        }
     }
 
     public void addDirectory(String username, String path) {
