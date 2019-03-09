@@ -42,7 +42,7 @@ import java.io.PrintWriter;
 
 public class SFSServer {
   private static final Charset CHARSET = StandardCharsets.UTF_8;
-  private static Controller controller = new Controller();
+  // private static Controller controller = new Controller();
 
   public static String printRequestInfo(HttpExchange t) throws IOException{
     // Returns if it is GET or POST request
@@ -69,6 +69,7 @@ public class SFSServer {
   public static void main(String[] args) throws Exception {
 
     HttpServer server = HttpServer.create(new InetSocketAddress("10.2.14.222", 4000), 0);
+    // HttpServer server = HttpServer.create(new InetSocketAddress("localhost", 8000), 0);
     // server.createContext("/info", new InfoHandler());
     // server.createContext("/login", new GetHandler());
     server.createContext("/", new StaticRequestHandler());
@@ -199,11 +200,11 @@ public class SFSServer {
       String responseBody = "/home.html";
       Headers h = t.getResponseHeaders();
 
-      if (path.equals("/signuphandler")) {
-        controller.signUp(params.get("uname"), params.get("psw"));
-      } else {
-        controller.login(params.get("uname"), params.get("psw"));
-      }
+      // if (path.equals("/signuphandler")) {
+      //   controller.signUp(params.get("uname"), params.get("psw"));
+      // } else {
+      //   controller.login(params.get("uname"), params.get("psw"));
+      // }
 
       h.set("Content-Type", String.format("text/plain; charset=%s", CHARSET));
       final byte[] rawResponseBody = responseBody.getBytes(CHARSET);
@@ -223,10 +224,10 @@ public class SFSServer {
       System.out.println("Path: " + path);
       System.out.println("Query: " + query);
       Map<String, String> params = queryToMap(requestBody);
-      String inode = params.get("inode").replaceFirst("/Home","/users/stefan");
+      String inode = params.get("inode").replaceFirst("/Home","/users/user1");
       if(path.equals("/newFile")){
         System.out.println("IN HERE");
-        controller.addFile("stefan", inode, "");
+        // controller.addFile("stefan", inode, "");
       }
     }
   }

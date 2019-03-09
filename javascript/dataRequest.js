@@ -133,35 +133,51 @@ function viewFile(filename){
   }
 }
 
-function newInodeRequest(element){
+function createFileRequest(element){
+  return function(){
+    var xhttp;
+    xhttp=new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+      if (this.readyState == 4 && this.status == 200) {
+        // document.getElementById("folderModal").style.display = "none";
+        console.log("What the fuck");
+        getInfo("/getInodes.t?path="+currentPath, updateContent);
+      }
+    };
+    console.log("we get in here");
+    var url;
+    var name;
+    name = document.getElementById("newFileInput").value;
+    url = "/newFile?inode="+currentPath+"/"+name;
+    xhttp.open("GET", url, true);
+    xhttp.send();
+    document.getElementById("fileModal").style.display = "none";
+  }
+}
+
+function newFolderRequest(element){
   return function(){
     var xhttp;
     xhttp=new XMLHttpRequest();
     xhttp.onreadystatechange = function() {
       if (this.readyState == 4 && this.status == 200) {
         getInfo("/getInodes.t?path="+currentPath, updateContent);
-        document.getElementById("folderModal").style.display = "none";
-        document.getElementById("fileModal").style.display = "none";
       }
     };
+    console.log("we get in here");
     var url;
     var name;
-    if(element.id=="okNameFile"){
-      name = document.getElementById("newFileInput").value;
-      url = "/newFile?inode="+currentPath+"/"+name;
-    }
-    else{
-      name = document.getElementById("newFolderInput").value;
-      url = "/newFolder?inode="+currentPath+"/"+name;
-    }
-    xhttp.open("GET", url, false);
+    name = document.getElementById("newFolderInput").value;
+    url = "/newFolder?inode="+currentPath+"/"+name;
+    xhttp.open("GET", url, true);
     xhttp.send();
+    document.getElementById("folderModal").style.display = "none";
   }
 }
-var okNameFile = document.getElementById("okNameFile");
-okNameFile.addEventListener("click",newInodeRequest(okNameFile));
-
-var okNameFolder = document.getElementById("okNameFolder");
-okNameFile.addEventListener("click",newInodeRequest(okNameFolder));
 
 
+var okNameFile = document.getElementById("newFileButton");
+okNameFile.addEventListener("click",createFileRequest(okNameFile));
+
+var okNameFolder = document.getElementById("NameFolderButton");
+okNameFolder.addEventListener("click",newFolderRequest(okNameFolder));
