@@ -218,7 +218,7 @@ public class SFSServer {
       System.out.println("Path: " + path);
       System.out.println("Query: " + query);
       Map<String, String> params = queryToMap(requestBody);
-      String inode = params.get("inode").replaceFirst("/Home","/users/stefan")
+      String inode = params.get("inode").replaceFirst("/Home","/users/stefan");
       if(path.equals("/newFile")){
 
         controller.addFile("stefan", inode, "");
