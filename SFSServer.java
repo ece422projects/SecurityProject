@@ -200,11 +200,11 @@ public class SFSServer {
       String responseBody = "/home.html";
       Headers h = t.getResponseHeaders();
 
-      if (path.equals("/signuphandler")) {
-        controller.signUp(params.get("uname"), params.get("psw"));
-      } else {
-        controller.login(params.get("uname"), params.get("psw"));
-      }
+      // if (path.equals("/signuphandler")) {
+      //   controller.signUp(params.get("uname"), params.get("psw"));
+      // } else {
+      //   controller.login(params.get("uname"), params.get("psw"));
+      // }
 
       h.set("Content-Type", String.format("text/plain; charset=%s", CHARSET));
       final byte[] rawResponseBody = responseBody.getBytes(CHARSET);
@@ -217,13 +217,15 @@ public class SFSServer {
 
   static class CreateInodeHandler implements HttpHandler {
     public void handle(HttpExchange t) throws IOException{
-      System.out.println("WE get to the create handler");
+      System.out.println("We get into the creat handler");
+
       String requestBody = printRequestInfo(t);
       URI uri = t.getRequestURI();
       String path = uri.getPath().trim();
       String query = uri.getQuery();
       System.out.println("Path: " + path);
       System.out.println("Query: " + query);
+
       Map<String, String> params = queryToMap(query);
       System.out.println(params.toString());
 
@@ -245,6 +247,7 @@ public class SFSServer {
         System.out.println("Adding folder");
         controller.addDirectory("user1", inode);
       }
+
     }
   }
 
