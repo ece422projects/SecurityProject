@@ -217,18 +217,34 @@ public class SFSServer {
 
   static class CreateInodeHandler implements HttpHandler {
     public void handle(HttpExchange t) throws IOException{
+      System.out.println("WE get to the create handler");
       String requestBody = printRequestInfo(t);
       URI uri = t.getRequestURI();
       String path = uri.getPath().trim();
       String query = uri.getQuery();
       System.out.println("Path: " + path);
       System.out.println("Query: " + query);
-      Map<String, String> params = queryToMap(requestBody);
-      String inode = params.get("inode").replaceFirst("/Home","/users/user1");
-      // if(path.equals("/newFile")){
-        // System.out.println("IN HERE");
+      Map<String, String> params = queryToMap(query);
+      System.out.println(params.toString());
+
+      String inode = "";
+      try{
+        inode = params.get("inode");
+        inode.replaceFirst("/Home","/users/user1")
+      }
+      catch(Exception e){
+        e.printStackTrace();
+      }
+
+      System.out.println(inode);
+      if(path.equals("/newFile")){
+        System.out.println("adding file");
         controller.addFile("user1", inode, "");
-      // }
+      }
+      if(path.equals("newFolder")){
+        System.out.println("Adding folder");
+        controller.addDirectory("user1", inode);
+      }
     }
   }
 
@@ -279,9 +295,13 @@ public class SFSServer {
 
 
   private static Map<String, String> queryToMap(String query) {
+    System.out.println("Query in queryToMap: "+query);
     Map<String, String> result = new HashMap<>();
     for (String param : query.split("&")) {
+        System.out.println("Param: "+param);
         String[] entry = param.split("=");
+        System.out.println("entry 0: "+entry[0]);
+        System.out.println("entry 1: "+entry[1]);
         if (entry.length > 1) {
             result.put(entry[0], entry[1]);
         }else{
