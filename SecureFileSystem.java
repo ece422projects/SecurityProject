@@ -8,6 +8,12 @@ public class SecureFileSystem {
     public static void main (String[] args) {
 
         Controller controller = new Controller();
+        // controller.login("user1", "user1password").toString();
+        controller.addFile("user1", "/users/user1/hello.txt", "Hello World!");
+        controller.addFile("user1", "/users/user1/goodbye.txt", "Goodbye!");
+        controller.addDirectory("user1", "/users/user1/Pictures");
+        controller.addFile("user1", "/users/user1/Pictures/pictures.txt", "Beaches");
+
         // mySQLDatabaseHandler.signUp("user1", "user1password");
         // mySQLDatabaseHandler.signUp("user2", "user2password");
         // mySQLDatabaseHandler.signUp("user3", "user3password");
