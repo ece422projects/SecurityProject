@@ -184,24 +184,13 @@ public class SFSServer {
       Map<String, String> params = queryToMap(requestBody);
       System.out.println("Uname: "+params.get("uname"));
       System.out.println("PSW: "+params.get("psw"));
-
-      File file = new File("home.html").getCanonicalFile();
-
-      OutputStream os = t.getResponseBody();
-
+      String responseBody = "/home.html";
       Headers h = t.getResponseHeaders();
-      h.set("Content-Type", "text/html");
-      t.sendResponseHeaders(200, 0);
-
-      FileInputStream fs = new FileInputStream(file);
-      final byte[] buffer = new byte[0x10000];
-
-      int count = 0;
-      while ((count = fs.read(buffer)) >= 0) {
-        os.write(buffer,0,count);
-      }
-      fs.close();
-      os.close();
+      h.set("Content-Type", String.format("text/plain; charset=%s", CHARSET));
+      final byte[] rawResponseBody = responseBody.getBytes(CHARSET);
+      t.sendResponseHeaders(200, rawResponseBody.length);
+      t.getResponseBody().write(rawResponseBody);
+      t.close();
 
     }
   }

@@ -24,17 +24,17 @@
         <p>Please fill in this form to create an account.</p>
         <hr>
         <label for="uname"><b>Username</b></label>
-        <input type="text" placeholder="Enter a Username" name="uname" required>
+        <input type="text" placeholder="Enter a Username" name="uname" id="signupUNAME" required>
 
         <label for="psw"><b>Password</b></label>
-        <input type="password" placeholder="Enter Password" name="psw" required>
+        <input type="password" placeholder="Enter Password" name="psw" id="signupPSW" required>
 
         <label for="psw-repeat"><b>Repeat Password</b></label>
         <input type="password" placeholder="Repeat Password" name="psw-repeat" required>
 
         <div class="clearfix">
           <button type="button" onclick="document.getElementById('id01').style.display='none'" class="cancelbtn">Cancel</button>
-          <button type="submit" class="signupbtn">Sign Up</button>
+          <button type="button" onclick="submitSignupForm()" class="signupbtn" >Sign Up</button>
         </div>
       </div>
     </form>
@@ -48,12 +48,12 @@
       <form class="modal-content animate" action="loginhandler" method="post">
         <div class="modal-container">
           <label for="uname"><b>Username</b></label>
-          <input type="text" placeholder="Enter Username" name="uname" required>
+          <input type="text" placeholder="Enter Username" name="uname" id="loginUNAME" required>
 
           <label for="psw"><b>Password</b></label>
-          <input type="password" placeholder="Enter Password" name="psw" required>
+          <input type="password" placeholder="Enter Password" name="psw"  id="loginPSW" required>
           <div class="clearfix">
-            <button type="submit" class="loginbtn">Login</button>
+            <button type="button" class="loginbtn" onclick="submitLoginForm()">Login</button>
             <button type="button" onclick="document.getElementById('id02').style.display='none'" class="cancelbtn">Cancel</button>
           </div>
         </div>
@@ -74,4 +74,5 @@ window.onclick = function(event) {
     }
 }
 </script>
+<script src="javascript/login_signup.js"></script>
 </html>
