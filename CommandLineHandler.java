@@ -2,6 +2,7 @@ import java.lang.*;
 import java.sql.*;
 import java.util.*;
 import java.io.*;
+import java.io.File;
 
 public class CommandLineHandler {
 
@@ -12,7 +13,6 @@ public class CommandLineHandler {
  
     private Connection myConnection;
     private Statement myStatement;
-    private ResultSet resultSet;
 
     private String rootPath;
 
@@ -43,17 +43,6 @@ public class CommandLineHandler {
         }         
     }
 
-    public void deleteRootDirectory() {
-
-        try {
-            String command = "rm -rf " + this.rootPath + "/users/";
-            Process p = Runtime.getRuntime().exec(command);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }         
-    }
-
-
     public ArrayList<String> checkForCorruption(String username) {
 
         String query;
@@ -73,7 +62,7 @@ public class CommandLineHandler {
                     String physicalFileBody = readFile(path);
 
                     if (!filebody.equals(physicalFileBody)) {
-                        corruptedFileNames.add( PathParsing.getElementName(path) );
+                        corruptedFileNames.add( path );
                     }
                 }
             }
@@ -87,39 +76,46 @@ public class CommandLineHandler {
         return corruptedFileNames;
     }
 
-    public void makePhysicalRecord() {
-
-        String query;
-        query = "SELECT * from contents ORDER BY LENGTH(path)";
+    public void createPhysicalDirectory(String path) {
 
         try {
-
-            ResultSet resultSet = myStatement.executeQuery(query);
-
-            while (resultSet.next()) {
-                String type = resultSet.getString("type");
-                String path = resultSet.getString("path");
-                String filebody = resultSet.getString("filebody");
-
-                if (type.equals("D")) {
-                    String command = "mkdir " + this.rootPath + path;
-                    Process p = Runtime.getRuntime().exec(command);        
-                } else if (type.equals("F")) {
-                    path = path.substring(0, path.length() - 1);
-                    String command = "touch " + this.rootPath + path;
-                    System.out.println(command);
-                    Process p = Runtime.getRuntime().exec(command); 
-                    BufferedWriter writer = new BufferedWriter(new FileWriter(this.rootPath + path)); 
-                    writer.write(filebody);
-                    writer.close();
-                }
-            }
-
-        } catch (SQLException se) {
-            se.printStackTrace();
-        } catch(Exception e){
+            String command = "mkdir " + this.rootPath + path;
+            Process p = Runtime.getRuntime().exec(command);
+        } catch (IOException e) {
             e.printStackTrace();
-        }
+        }  
+    }
+
+    public void deletePhysicalDirectory(String path) {
+
+        try {
+            String command = "rm -rf " + this.rootPath + path;
+            Process p = Runtime.getRuntime().exec(command);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }         
+    }
+
+    public void createPhysicalFile(String path, String filebody) {
+
+        try {
+            path = path.substring(0, path.length() - 1);
+            BufferedWriter writer = new BufferedWriter(new FileWriter(this.rootPath + path.trim()));
+            writer.write(filebody);
+            writer.close();
+        }  catch (IOException e) {
+            e.printStackTrace();
+        } 
+    }
+
+    public void deletePhysicalFile(String path) {
+
+        try {
+            String command = "rm " + this.rootPath + path;
+            Process p = Runtime.getRuntime().exec(command);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }         
     }
 
     public String readFile(String path) {
@@ -145,5 +141,15 @@ public class CommandLineHandler {
         
         return fileBody;
     }
+
+    public void close() {
+
+        try {
+            myConnection.close();
+            myStatement.close();
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+   }
 
 }

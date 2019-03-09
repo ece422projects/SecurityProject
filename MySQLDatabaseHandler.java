@@ -47,6 +47,10 @@ public class MySQLDatabaseHandler {
 //        }
 //    }
 
+    public SystemUser returnSystemUser() {
+        return systemUser;
+    }
+
     public Boolean signUp(String username, String password) {
 
         String query;
@@ -60,7 +64,6 @@ public class MySQLDatabaseHandler {
             } else {
                 query = "INSERT INTO users(username, password) VALUES('" + username + "', '" + password + "')";
                 myStatement.execute(query);
-                addDirectory(username, "D", "/users/" + username);
             }
 
         }
@@ -321,7 +324,7 @@ public class MySQLDatabaseHandler {
         String encryptedPath = PathParsing.encryptPath(systemUser, path);
 
         try {
-            query = "DELETE FROM contents WHERE path = '" + encryptedPath + "'";
+            query = "DELETE FROM contents WHERE path LIKE '" + encryptedPath + "'";
 
             myStatement.execute(query);
         } catch (SQLException se) {
