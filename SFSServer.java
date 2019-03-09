@@ -73,6 +73,7 @@ public class SFSServer {
     server.createContext("/getInodes.t", new InodeRequestHandler());
     server.createContext("/viewFile", new TextEditorHandler());
     server.createContext("/editFile", new TextEditorHandler());
+    server.createContext("/saveFile", new TextEditorHandler());
     server.createContext("/loginhandler", new LoginHandler());
     server.createContext("/signuphandler", new LoginHandler());
     server.setExecutor(null);
@@ -129,7 +130,7 @@ public class SFSServer {
 
   static class TextEditorHandler implements HttpHandler {
     public void handle(HttpExchange t) throws IOException {
-      printRequestInfo(t);
+      String requestBody = printRequestInfo(t);
       URI uri = t.getRequestURI();
       String path = uri.getPath();
       String query = uri.getQuery();
@@ -149,6 +150,8 @@ public class SFSServer {
         doc.getElementById("textEditor").attr("readonly","true");
         String someText = "My awesome blog!";
         doc.getElementById("textEditor").text(someText);
+        // doc.getElementById("saveLI").remove();
+        doc.getElementById("saveFile").remove();
         String html = doc.html();
         Writer writer = new PrintWriter(os);
         writer.write(html);
@@ -165,6 +168,11 @@ public class SFSServer {
           os.write(buffer,0,count);
         }
         fs.close();
+      }
+
+      if(path.equals("/saveFile")){
+        //save file
+        System.out.println("Body: "+requestBody);
       }
 
       os.close();
