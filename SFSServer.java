@@ -225,10 +225,10 @@ public class SFSServer {
       System.out.println("Query: " + query);
       Map<String, String> params = queryToMap(requestBody);
       String inode = params.get("inode").replaceFirst("/Home","/users/user1");
-      if(path.equals("/newFile")){
-        System.out.println("IN HERE");
-        controller.addFile("stefan", inode, "");
-      }
+      // if(path.equals("/newFile")){
+        // System.out.println("IN HERE");
+        controller.addFile("user1", inode, "");
+      // }
     }
   }
 
