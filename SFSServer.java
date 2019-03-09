@@ -26,6 +26,8 @@ import java.net.URL;
 import java.util.Map;
 import java.util.HashMap;
 import java.lang.*;
+import java.util.List;
+import java.util.ArrayList;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -37,9 +39,9 @@ import org.jsoup.nodes.*;
 import java.io.Writer;
 import java.io.PrintWriter;
 
+
 public class SFSServer {
   private static final Charset CHARSET = StandardCharsets.UTF_8;
-  private static Controller controller = new Controller();
 
   public static String printRequestInfo(HttpExchange t) throws IOException{
     // Returns if it is GET or POST request
@@ -65,9 +67,8 @@ public class SFSServer {
 
   public static void main(String[] args) throws Exception {
 
-    // byte[] ipAddr = new byte[]{199, 116, 235, 182};
-    // InetAddress IP = InetAddress.getByAddress("199.116.235.182".getBytes());
-    HttpServer server = HttpServer.create(new InetSocketAddress("10.2.14.222", 4000), 0);
+    InetAddress IP = InetAddress.getByName("localhost");
+    HttpServer server = HttpServer.create(new InetSocketAddress("localhost", 8000), 0);
     // server.createContext("/info", new InfoHandler());
     // server.createContext("/login", new GetHandler());
     server.createContext("/", new StaticRequestHandler());
@@ -77,6 +78,8 @@ public class SFSServer {
     server.createContext("/saveFile", new TextEditorHandler());
     server.createContext("/loginhandler", new LoginHandler());
     server.createContext("/signuphandler", new LoginHandler());
+    server.createContext("/newFile", new CreateInodeHandler());
+    server.createContext("/newFolder", new CreateInodeHandler());
     server.setExecutor(null);
     server.start();
   }
@@ -146,6 +149,7 @@ public class SFSServer {
       Writer writer = new PrintWriter(os);
 
       Headers h = t.getResponseHeaders();
+
       h.set("Content-Type", "text/html");
       t.sendResponseHeaders(200, 0);
 
@@ -192,21 +196,28 @@ public class SFSServer {
       Map<String, String> params = queryToMap(requestBody);
       System.out.println("Uname: "+params.get("uname"));
       System.out.println("PSW: "+params.get("psw"));
-      if(path.equals("/signuphandler")) {
-        controller.signUp(params.get("uname"), params.get("psw"));
-      } else {
-        controller.login(params.get("uname"), params.get("psw"));
-      }
-
-
       String responseBody = "/home.html";
       Headers h = t.getResponseHeaders();
+
       h.set("Content-Type", String.format("text/plain; charset=%s", CHARSET));
       final byte[] rawResponseBody = responseBody.getBytes(CHARSET);
       t.sendResponseHeaders(200, rawResponseBody.length);
       t.getResponseBody().write(rawResponseBody);
       t.close();
 
+    }
+  }
+
+  static class CreateInodeHandler implements HttpHandler {
+    public void handle(HttpExchange t) throws IOException{
+      String requestBody = printRequestInfo(t);
+      URI uri = t.getRequestURI();
+      String path = uri.getPath();
+      String query = uri.getQuery();
+      System.out.println("Path: " + path);
+      System.out.println("Query: " + query);
+      Map<String, String> params = queryToMap(requestBody);
+      
     }
   }
 
@@ -254,6 +265,7 @@ public class SFSServer {
       t.close();
     }
   }
+
 
   private static Map<String, String> queryToMap(String query) {
     Map<String, String> result = new HashMap<>();

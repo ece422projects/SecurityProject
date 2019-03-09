@@ -132,3 +132,27 @@ function viewFile(filename){
     window.location.replace("/viewFile?file="+filename+"#"+currentPath);
   }
 }
+
+function newInodeRequest(element){
+  return function(){
+    var xhttp;
+    xhttp=new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+      if (this.readyState == 4 && this.status == 200) {
+        getInfo("/getInodes.t?path="+currentPath, updateContent);
+      }
+    };
+    var url;
+    var name;
+    if(element.id=="okNameFile"){
+      name = document.getElementById("newFileInput").value;
+      url = "/newFile?inode="+currentPath+name;
+    }
+    else{
+      name = document.getElementById("newFolderInput").value;
+      url = "/newFolder?inode="+currentPath+name;
+    }
+    xhttp.open("GET", url, false);
+    xhttp.send();
+  }
+}
