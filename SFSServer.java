@@ -42,7 +42,7 @@ import java.io.PrintWriter;
 
 public class SFSServer {
   private static final Charset CHARSET = StandardCharsets.UTF_8;
-  // private static Controller controller = new Controller();
+  private static Controller controller = new Controller();
 
   public static String printRequestInfo(HttpExchange t) throws IOException{
     // Returns if it is GET or POST request
@@ -200,11 +200,11 @@ public class SFSServer {
       String responseBody = "/home.html";
       Headers h = t.getResponseHeaders();
 
-      // if (path.equals("/signuphandler")) {
-      //   controller.signUp(params.get("uname"), params.get("psw"));
-      // } else {
-      //   controller.login(params.get("uname"), params.get("psw"));
-      // }
+      if (path.equals("/signuphandler")) {
+        controller.signUp(params.get("uname"), params.get("psw"));
+      } else {
+        controller.login(params.get("uname"), params.get("psw"));
+      }
 
       h.set("Content-Type", String.format("text/plain; charset=%s", CHARSET));
       final byte[] rawResponseBody = responseBody.getBytes(CHARSET);
@@ -227,7 +227,7 @@ public class SFSServer {
       String inode = params.get("inode").replaceFirst("/Home","/users/user1");
       if(path.equals("/newFile")){
         System.out.println("IN HERE");
-        // controller.addFile("stefan", inode, "");
+        controller.addFile("stefan", inode, "");
       }
     }
   }
