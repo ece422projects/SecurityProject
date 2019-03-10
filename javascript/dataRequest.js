@@ -182,3 +182,26 @@ okNameFile.addEventListener("click",createFileRequest(okNameFile));
 
 var okNameFolder = document.getElementById("NameFolderButton");
 okNameFolder.addEventListener("click",newFolderRequest(okNameFolder));
+
+
+function newGroupRequest(){
+  var xhttp;
+  xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function (){
+    if(this.readyState == 4 && this.status == 200){
+      //do things
+    }
+  }
+  console.log("new group request");
+  var grpName = document.getElementById("newGrpName").value;
+  var users = document.getElementById("newGrpUsers").value;
+  xhttp.open("POST", "/newGroup", true);
+  xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+  xhttp.send("grpName="+grpName+"&users="+users);
+}
+
+document.getElementById("okNewGrp").addEventListener("click", newGroupRequest);
+
+// function editGroupRequest(){
+//
+// }

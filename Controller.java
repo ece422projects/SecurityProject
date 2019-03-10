@@ -32,7 +32,7 @@ public class Controller {
                 decryptedNames.add( PathParsing.returnElementName(systemUser, decryptedPath));
             }
 
-            return decryptedNames;        
+            return decryptedNames;
         } else {
             return null;
         }
@@ -41,7 +41,7 @@ public class Controller {
     public void addToGroup(String groupname, ArrayList<String> usernameList) {
 
         for (String username : usernameList) {
-            mySQLDatabaseHandler.addToGroups(groupname, username);
+            mySQLDatabaseHandler.addToGroups(username, groupname);
         }
     }
 
@@ -67,6 +67,10 @@ public class Controller {
         String encryptedFilebody = systemUser.encryptData(fileBody);
         mySQLDatabaseHandler.addFile(username, "F", path, fileBody);
         commandLineHandler.createPhysicalFile(encryptedPath, encryptedFilebody);
+    }
+
+    public ArrayList<String> getUserGroups(String username){
+      return mySQLDatabaseHandler.getUserGroups(username);
     }
 
     public ArrayList<ArrayList<String>> openDirectory(String username, String path) {

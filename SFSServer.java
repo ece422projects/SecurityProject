@@ -81,6 +81,7 @@ public class SFSServer {
     server.createContext("/signuphandler", new LoginHandler());
     server.createContext("/newFile", new CreateInodeHandler());
     server.createContext("/newFolder", new CreateInodeHandler());
+    server.createContext("/newGroup", new GroupHandler());
     server.setExecutor(null);
     server.start();
   }
@@ -239,16 +240,19 @@ public class SFSServer {
       Headers h = t.getResponseHeaders();
 
       ArrayList<String> corruptedFiles = null;
-      List<String> cookies = null;
+      List<String> cookies = new ArrayList<>();
 
       if (path.equals("/signuphandler")) {
         controller.signUp(params.get("uname"), params.get("psw"));
+        cookies.add("uname="+params.get("uname")+";");
+        h.put("Set-Cookie", cookies);
+        responseBody = "/home.html";
       } else {
         corruptedFiles = controller.login(params.get("uname"), params.get("psw"));
+        System.out.println("Corrupted Files: "+corruptedFiles.toString());
       }
 
       if(corruptedFiles!=null){
-        cookies = new ArrayList<String>();
         cookies.add("uname="+params.get("uname")+";");
         h.put("Set-Cookie", cookies);
         responseBody = "/home.html";
@@ -263,9 +267,41 @@ public class SFSServer {
     }
   }
 
+  static class GroupHandler implements HttpHandler{
+    public void handle(HttpExchange t) throws IOException{
+      System.out.println("We get into the group handler");
+      String requestBody = printRequestInfo(t);
+      System.out.println("Request body: "+requestBody);
+      URI uri = t.getRequestURI();
+      String requestPath = uri.getPath().trim();
+      System.out.println("Request Path: "+requestPath);
+
+      Map<String,String> inputMap = queryToMap(requestBody);
+      Headers requestHeaders = t.getRequestHeaders();
+      List<String> cookies = requestHeaders.get("Cookie");
+      System.out.println(cookies.get(0));
+      Map<String, String> cookieMap = queryToMap(cookies.get(0));
+
+      String uname = cookieMap.get("uname");
+      String grpName = inputMap.get("grpName");
+      String users = inputMap.get("users");
+
+      ArrayList<String> userList = new ArrayList<String>();
+      userList.add(uname);
+      String[] arrUsers = users.split(",");
+      for(String str : arrUsers){
+        userList.add(str.trim());
+      }
+      System.out.println(userList.toString());
+      if(requestPath.equals("/newGroup")){
+        controller.addToGroup(grpName, userList);
+      }
+    }
+  }
+
   static class CreateInodeHandler implements HttpHandler {
     public void handle(HttpExchange t) throws IOException{
-      System.out.println("We get into the creat handler");
+      System.out.println("We get into the create handler");
 
       String requestBody = printRequestInfo(t);
       URI uri = t.getRequestURI();
