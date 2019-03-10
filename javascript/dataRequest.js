@@ -6,6 +6,15 @@ if(window.location.hash.substring(1)!=""){
   console.log("We recieve a hashed path: ");
 }
 
+function updateInfo(){
+  //Just a wrapper for getting info and then updating UI
+  console.log(requestedPath);
+  var url = "/getInodes.t?path="+requestedPath;
+  getInfo(url, updateContent);
+  updateGroupInfo();
+  getCorruptedFiles();
+}
+
 function showAlert(text) {
   var toast = document.getElementById("toast");
   toast.innerHTML = text;
@@ -69,14 +78,6 @@ function removeGroups(dropdown){
   }
 }
 
-function updateInfo(){
-  //Just a wrapper for getting info and then updating UI
-  console.log(requestedPath);
-  var url = "/getInodes.t?path="+requestedPath;
-  getInfo(url, updateContent);
-  updateGroupInfo();
-  getCorruptedFiles();
-}
 
 function removeItems(container){
   var items = container.querySelectorAll(".item");
@@ -109,7 +110,6 @@ function updateContent(xhttp){
   var itemSpan1;
   var itemIcon;
   var itemSpan2;
-
   var i;
   for(i=0; i<inodes.length; i++){
     itemDiv = document.createElement('div');
@@ -128,7 +128,8 @@ function updateContent(xhttp){
       itemSpan1.appendChild(itemIcon);
       itemDiv.appendChild(itemSpan1);
       itemDiv.appendChild(itemSpan2);
-      itemDiv.addEventListener("dblclick", viewFile(inodes[i].name));
+      var url = "/canViewFile?file="+currentPath+"/"+inodes[i].name+"#"+currentPath;
+      itemDiv.addEventListener("dblclick", viewEditFile(url));
     }
 
     if(inodes[i].type=="folder"){
@@ -178,11 +179,22 @@ function assignDlinks(){
 }
 
 assignDlinks();
-//To do make it so that the file is added in
-function viewFile(filename){
+
+function viewEditFile(url){
   return function (){
-    console.log(currentPath+"/"+filename);
-    window.location.replace("/viewFile?file="+currentPath+"/"+filename+"#"+currentPath);
+    var xhttp;
+    xhttp=new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+      if (this.readyState == 4 && this.status == 200) {
+        var response = this.responseText;
+        if(response=="Denied"){
+          return;
+        }
+        window.location.replace(response);
+      }
+    };
+    xhttp.open("GET", url, false);
+    xhttp.send();
   }
 }
 
@@ -192,8 +204,6 @@ function createFileRequest(element){
     xhttp=new XMLHttpRequest();
     xhttp.onreadystatechange = function() {
       if (this.readyState == 4 && this.status == 200) {
-        // document.getElementById("folderModal").style.display = "none";
-        console.log("What the fuck");
         getInfo("/getInodes.t?path="+currentPath, updateContent);
       }
     };
@@ -242,6 +252,7 @@ function newGroupRequest(){
   xhttp.onreadystatechange = function (){
     if(this.readyState == 4 && this.status == 200){
       //do things
+      return;
     }
   }
   console.log("new group request");
@@ -250,6 +261,8 @@ function newGroupRequest(){
   xhttp.open("POST", "/newGroup", true);
   xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
   xhttp.send("grpName="+grpName+"&users="+users);
+  document.getElementById("newGrpModal").style.display = "none";
+  updateGroupInfo();
 }
 
 document.getElementById("okNewGrp").addEventListener("click", newGroupRequest);

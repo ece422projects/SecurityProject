@@ -24,12 +24,13 @@
           <a id="group" onclick="groupDropdown()">Group</a>
           <div id="groups" class="dropdown_content">
             <a id="newGrp">New</a>
-            <!-- <p class="groupLink">Group 1</p>
-            <p class="groupLink">Group 2</p> -->
           </div>
       </li>
       <li class="leftFloat">
         <p id="currentPath">Current/Path/</p>
+      </li>
+      <li class="rightFloat">
+        <a id="logOut">LogOut</a>
       </li>
     </ul>
     <div class="leftFloat sidebar">
@@ -47,15 +48,6 @@
     </div>
 
     <div class="content_container leftFloat">
-      <!-- <div class="item">
-        <span class="file"><i class="fas fa-file"></i></span>
-        <span class="label"></span>
-      </div>
-      <div class="item">
-        <span class="folder"><i class="fas fa-folder"></i></span>
-        <span class="label"></span>
-      </div> -->
-
       </div>
       <div id="context-menu" class="context-menu">
         <ul class="context-menu__items">
@@ -161,11 +153,12 @@
           <button type="button" name="okPermissions" id="okPermissions" class="okModal" onclick="">Ok</button>
       </div>
     </div>
-    <div id="toast"></div> 
+    <div id="toast"></div>
   </body>
   <script src="javascript/dataRequest.js"></script>
   <script src="javascript/dropdown.js"></script>
   <script src="javascript/contextMenu.js"></script>
   <script src="javascript/grpModal.js"></script>
   <script src="javascript/accordion.js"></script>
+  <script src="javascript/logOut.js"></script>
 </html>

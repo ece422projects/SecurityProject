@@ -186,14 +186,14 @@
       modal = document.getElementById('permissionsModal');
       modal.style.display = "block";
     }
-
     if (link.getAttribute("data-action") == "View"){
-      console.log(currentPath+"/"+filename);
-      window.location.replace("/viewFile?file="+currentPath+"/"+filename+"#"+currentPath);
+      var url = "/canViewFile?file="+currentPath+"/"+filename+"#"+currentPath;
+      viewEditFile(url);
     }
 
     if (link.getAttribute("data-action") == "Edit"){
-      window.location.replace("/editFile?file="+currentPath+"/"+filename+"#"+currentPath);
+      var url = "/editFile?file="+currentPath+"/"+filename+"#"+currentPath;
+      viewEditFile(url);
     }
 
     if (link.getAttribute("data-action") == "Delete"){
