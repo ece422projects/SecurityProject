@@ -197,14 +197,24 @@ public class SFSServer {
       Map<String, String> params = queryToMap(requestBody);
       System.out.println("Uname: "+params.get("uname"));
       System.out.println("PSW: "+params.get("psw"));
-      String responseBody = "/home.html";
+      String responseBody = "Denied";
       Headers h = t.getResponseHeaders();
 
-      // if (path.equals("/signuphandler")) {
-      //   controller.signUp(params.get("uname"), params.get("psw"));
-      // } else {
-      //   controller.login(params.get("uname"), params.get("psw"));
-      // }
+      ArrayList<String> corruptedFiles = null;
+      List<String> cookies = null;
+
+      if (path.equals("/signuphandler")) {
+        controller.signUp(params.get("uname"), params.get("psw"));
+      } else {
+        corruptedFiles = controller.login(params.get("uname"), params.get("psw"));
+      }
+
+      if(corruptedFiles!=null){
+        cookies = new ArrayList<String>();
+        cookies.add("uname="+params.get("uname")+";");
+        h.put("Set-Cookie", cookies);
+        responseBody = "/home.html";
+      }
 
       h.set("Content-Type", String.format("text/plain; charset=%s", CHARSET));
       final byte[] rawResponseBody = responseBody.getBytes(CHARSET);
@@ -232,7 +242,7 @@ public class SFSServer {
       String inode = "";
       try{
         inode = params.get("inode");
-        inode.replaceFirst("/Home","/users/user1")
+        inode = inode.replaceFirst("/Home","/users/user1");
       }
       catch(Exception e){
         e.printStackTrace();
@@ -247,45 +257,76 @@ public class SFSServer {
         System.out.println("Adding folder");
         controller.addDirectory("user1", inode);
       }
-
+      String responseBody = "Good";
+      Headers h = t.getResponseHeaders();
+      h.set("Content-Type", String.format("text/plain; charset=%s", CHARSET));
+      final byte[] rawResponseBody = responseBody.getBytes(CHARSET);
+      t.sendResponseHeaders(200, rawResponseBody.length);
+      t.getResponseBody().write(rawResponseBody);
+      t.close();
     }
   }
 
   static class InodeRequestHandler implements HttpHandler {
     public void handle(HttpExchange t) throws IOException {
       URI uri = t.getRequestURI();
-      String path = uri.getPath();
+      String requestPath = uri.getPath();
       String query = uri.getQuery();
-      System.out.println("Path: " + path);
+      System.out.println("Path: " + requestPath);
       System.out.println("Query: " + query);
       Map<String, String> params = queryToMap(query);
       //TO DO: make response dynamic, dependent on current path and permissions
       //for now, return hard coded thing
+      Headers requestHeaders = t.getRequestHeaders();
+      List<String> cookies = requestHeaders.get("Cookie");
+      System.out.println(cookies.get(0));
+      Map<String, String> cookieMap = queryToMap(cookies.get(0));
+      String uname = cookieMap.get("uname");
+      System.out.println("User: "+uname);
       String responseBody = "";
-      if(params.get("path").equals("/Home")){ //userHome remains generic on the client, server should resolve actual home using cookie
-        // responseBody = "[{\"name\":\"file.txt\",\"type\":\"file\",\"permissions\":\"\",\"group\":\"\"}, {\"name\":\"blog\",\"type\":\"folder\",\"permissions\":\"\",\"group\":\"\"}]";
-        JsonArray arr = Json.createArrayBuilder()
-          .add(Json.createObjectBuilder()
-          .add("name","file.txt")
-          .add("type","file"))
-          .add(Json.createObjectBuilder()
-          .add("name","blog")
-          .add("type","folder")).build();
-        responseBody = arr.toString();
-        System.out.println("Response Body: "+responseBody);
+      String path = params.get("path");
+      if(path.contains("/Home")){
+        path = path.replaceFirst("/Home","/users/"+uname);
       }
-      if(params.get("path").equals("/Home/blog")){
-        // responseBody = "[{\"name\":\"blog.txt\",\"type\":\"file\",\"permissions\":\"\",\"group\":\"\"}]";
-        JsonArray arr = Json.createArrayBuilder()
-          .add(Json.createObjectBuilder()
-          .add("name","blog1.txt")
-          .add("type","file")).build();
-        responseBody = arr.toString();
-        System.out.println("Response Body: "+responseBody);
+      if(path.contains("/Users")){
+        path = path.replaceFirst("/Users","/users");
       }
-      if(path.equals("Users/")){
-       // responseBody = "[{\"name\":\"OtherUser\",\"type\":\"folder\",\"permissions\":\"\",\"group\":\"\"}]";
+      System.out.println("Processed Path: "+path);
+
+      ArrayList<ArrayList<String>> directoryContents = controller.openDirectory(uname, path);
+      ArrayList<String> files = directoryContents.get(0);
+      ArrayList<String> directories = directoryContents.get(1);
+      System.out.println("Dir contents: "+directoryContents.toString());
+      JsonArrayBuilder builder = Json.createArrayBuilder();
+
+      for (String file : files) {
+        builder.add(Json.createObjectBuilder()
+        .add("name",file)
+        .add("type", "file").build());
       }
+
+      for (String folder : directories) {
+        builder.add(Json.createObjectBuilder()
+        .add("name",folder)
+        .add("type", "folder").build());
+      }
+      JsonArray arr = builder.build();
+      responseBody = arr.toString();
+      System.out.println("Response body: "+responseBody);
+
+
+
+      //   JsonArray arr = Json.createArrayBuilder()
+      //     .add(Json.createObjectBuilder()
+      //     .add("name","file.txt")
+      //     .add("type","file"))
+      //     .add(Json.createObjectBuilder()
+      //     .add("name","blog")
+      //     .add("type","folder")).build();
+      //   responseBody = arr.toString();
+      //   System.out.println("Response Body: "+responseBody);
+      // }
+
 
       Headers h = t.getResponseHeaders();
       h.set("Content-Type", String.format("application/json; charset=%s", CHARSET));
