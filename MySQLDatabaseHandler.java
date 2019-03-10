@@ -122,6 +122,37 @@ public class MySQLDatabaseHandler {
         }
     }
 
+    public ArrayList<String> getGroupsUserOwns(String username) {
+
+        String query;
+        ArrayList<String> groups = new ArrayList<String>();
+        query = "SELECT groupname FROM groups WHERE owner = '" + username + "'";
+
+        try {
+            Connection connection = DriverManager.getConnection(databaseURL, databaseUsername, databasePassword);
+            Statement statement = connection.createStatement();             
+            ResultSet rs = statement.executeQuery(query);
+            
+            while (rs.next()) {
+                groups.add(rs.getString("groupname"));
+            }
+
+            connection.close();
+            statement.close();
+            rs.close();
+
+        } catch (SQLException se) {
+            se.printStackTrace();
+            return null;
+        }
+
+        if (groups.size() == 0) {
+            groups.add(username);
+        }
+
+        return groups;    
+    }
+
     public ArrayList<String> getUserGroups(String username) {
       
         String query;
@@ -173,10 +204,10 @@ public class MySQLDatabaseHandler {
         return false;
     }
 
-    public Boolean addToGroups(String username, String groupname) {
+    public Boolean addToGroups(String owner, String username, String groupname) {
 
         String query;
-        query = "SELECT * FROM groups WHERE groupname = '" + groupname + "' AND username = '" + username + "'";
+        query = "SELECT * FROM groups WHERE groupname = '" + groupname + "' AND username = '" + username + "' AND owner = '" + owner + "'";
 
         try {
              resultSet = myStatement.executeQuery(query);
@@ -184,7 +215,7 @@ public class MySQLDatabaseHandler {
             if (resultSet.next()) {
                 return false;
             } else {
-                query = "INSERT INTO groups(groupname, username) VALUES('" + groupname + "', '" + username + "')";
+                query = "INSERT INTO groups(owner, groupname, username) VALUES('" + owner + "', '" + groupname + "', '" + username + "')";
                 myStatement.execute(query); 
             }
         } catch (SQLException se) {
@@ -194,10 +225,10 @@ public class MySQLDatabaseHandler {
         return true;
     }
 
-    public Boolean removeFromGroups(String groupname, String username) {
+    public Boolean removeFromGroups(String owner, String groupname, String username) {
 
         String query;
-        query = "DELETE FROM groups WHERE groupname = '" + groupname + "AND username = '" + username + "'";
+        query = "DELETE FROM groups WHERE groupname = '" + groupname + "' AND username = '" + username + "' AND owner = '" + owner + "'";
 
         try {
             myStatement.execute(query);
@@ -207,6 +238,7 @@ public class MySQLDatabaseHandler {
             return false;
         }
     }
+
 
     public Boolean addFile(String username, String type, String path, String fileBody) {
 

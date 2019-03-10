@@ -38,17 +38,22 @@ public class Controller {
         }
     }
 
-    public void addToGroup(String groupname, ArrayList<String> usernameList) {
+    public ArrayList<String> geOwnerGroups(String username) {
+
+        return mySQLDatabaseHandler.getGroupsUserOwns(username);
+    }
+
+    public void addToGroup(String owner, String groupname, ArrayList<String> usernameList) {
 
         for (String username : usernameList) {
-            mySQLDatabaseHandler.addToGroups(username, groupname);
+            mySQLDatabaseHandler.addToGroups(owner, username, groupname);
         }
     }
 
-    public void removeFromGroup(String groupname, ArrayList<String> usernameList) {
+    public void removeFromGroup(String owner, String groupname, ArrayList<String> usernameList) {
 
         for (String username : usernameList) {
-            mySQLDatabaseHandler.removeFromGroups(groupname, username);
+            mySQLDatabaseHandler.removeFromGroups(owner, username, groupname);
         }
     }
 
