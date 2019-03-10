@@ -18,27 +18,29 @@ public class Controller {
         commandLineHandler.createPhysicalDirectory("/users/" + username);
     }
 
-    public ArrayList<String> login(String username, String password) {
+    public Boolean login(String username, String password) {
 
-        SystemUser systemUser = mySQLDatabaseHandler.returnSystemUser();
         Boolean correctLogin = mySQLDatabaseHandler.logIn(username, password);
-
-        if (correctLogin) {
-            ArrayList<String> encryptedFileNames = commandLineHandler.checkForCorruption(username);
-            ArrayList<String> decryptedNames = new ArrayList<String>();
-
-            for (String path : encryptedFileNames) {
-                String decryptedPath = PathParsing.decryptPath(systemUser, path);
-                decryptedNames.add( PathParsing.returnElementName(systemUser, decryptedPath));
-            }
-
-            return decryptedNames;
-        } else {
-            return null;
-        }
+        return correctLogin;
     }
 
-    public ArrayList<String> geOwnerGroups(String username) {
+    public ArrayList<String> getCorruptedFiles(String username) {
+
+        SystemUser systemUser = mySQLDatabaseHandler.returnSystemUser();
+
+        ArrayList<String> encryptedFileNames = commandLineHandler.checkForCorruption(username);
+        ArrayList<String> decryptedNames = new ArrayList<String>();
+
+        for (String path : encryptedFileNames) {
+          String decryptedPath = PathParsing.decryptPath(systemUser, path);
+          decryptedNames.add( PathParsing.returnElementName(systemUser, decryptedPath));
+        }
+
+        return decryptedNames;
+
+    }
+
+    public ArrayList<String> getOwnerGroups(String username) {
 
         return mySQLDatabaseHandler.getGroupsUserOwns(username);
     }

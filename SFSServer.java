@@ -82,6 +82,8 @@ public class SFSServer {
     server.createContext("/newFile", new CreateInodeHandler());
     server.createContext("/newFolder", new CreateInodeHandler());
     server.createContext("/newGroup", new GroupHandler());
+    server.createContext("/getGroups", new GroupHandler());
+    server.createContext("/getCorruptedFiles", new CorruptedFileHandler());
     server.setExecutor(null);
     server.start();
   }
@@ -134,6 +136,38 @@ public class SFSServer {
     }
   }
 
+  static class CorruptedFileHandler implements HttpHandler{
+    public void handle(HttpExchange t) throws IOException{
+      System.out.println("We made it to the corrupted file handler");
+      URI uri = t.getRequestURI();
+      String requestPath = uri.getPath();
+      System.out.println("Path: " + requestPath);
+      Headers requestHeaders = t.getRequestHeaders();
+      List<String> cookies = requestHeaders.get("Cookie");
+      System.out.println(cookies.get(0));
+      Map<String, String> cookieMap = queryToMap(cookies.get(0));
+      String uname = cookieMap.get("uname");
+      System.out.println("User: "+uname);
+
+      String responseBody = "";
+      Headers h = t.getResponseHeaders();
+      ArrayList<String> fileList = controller.getCorruptedFiles(uname);
+
+      JsonArrayBuilder builder = Json.createArrayBuilder();
+      for(String file : fileList){
+        builder.add(file);
+      }
+      JsonArray arr = builder.build();
+      responseBody = arr.toString();
+      System.out.println("Response body: "+responseBody);
+
+      h.set("Content-Type", String.format("application/json; charset=%s", CHARSET));
+      final byte[] rawResponseBody = responseBody.getBytes(CHARSET);
+      t.sendResponseHeaders(200, rawResponseBody.length);
+      t.getResponseBody().write(rawResponseBody);
+      t.close();
+    }
+  }
   static class TextEditorHandler implements HttpHandler {
     public void handle(HttpExchange t) throws IOException {
       String requestBody = printRequestInfo(t);
@@ -239,7 +273,6 @@ public class SFSServer {
       String responseBody = "Denied";
       Headers h = t.getResponseHeaders();
 
-      ArrayList<String> corruptedFiles = null;
       List<String> cookies = new ArrayList<>();
 
       if (path.equals("/signuphandler")) {
@@ -248,15 +281,12 @@ public class SFSServer {
         h.put("Set-Cookie", cookies);
         responseBody = "/home.html";
       } else {
-        corruptedFiles = controller.login(params.get("uname"), params.get("psw"));
-        System.out.println("Corrupted Files: "+corruptedFiles.toString());
+        controller.login(params.get("uname"), params.get("psw"));
       }
 
-      if(corruptedFiles!=null){
-        cookies.add("uname="+params.get("uname")+";");
-        h.put("Set-Cookie", cookies);
-        responseBody = "/home.html";
-      }
+      cookies.add("uname="+params.get("uname")+";");
+      h.put("Set-Cookie", cookies);
+      responseBody = "/home.html";
 
       h.set("Content-Type", String.format("text/plain; charset=%s", CHARSET));
       final byte[] rawResponseBody = responseBody.getBytes(CHARSET);
@@ -276,26 +306,47 @@ public class SFSServer {
       String requestPath = uri.getPath().trim();
       System.out.println("Request Path: "+requestPath);
 
-      Map<String,String> inputMap = queryToMap(requestBody);
       Headers requestHeaders = t.getRequestHeaders();
       List<String> cookies = requestHeaders.get("Cookie");
       System.out.println(cookies.get(0));
       Map<String, String> cookieMap = queryToMap(cookies.get(0));
-
       String uname = cookieMap.get("uname");
-      String grpName = inputMap.get("grpName");
-      String users = inputMap.get("users");
 
-      ArrayList<String> userList = new ArrayList<String>();
-      userList.add(uname);
-      String[] arrUsers = users.split(",");
-      for(String str : arrUsers){
-        userList.add(str.trim());
-      }
-      System.out.println(userList.toString());
       if(requestPath.equals("/newGroup")){
-        controller.addToGroup(grpName, userList);
+        Map<String,String> inputMap = queryToMap(requestBody);
+        String grpName = inputMap.get("grpName");
+        String users = inputMap.get("users");
+
+        ArrayList<String> userList = new ArrayList<String>();
+        userList.add(uname);
+        String[] arrUsers = users.split(",");
+        for(String str : arrUsers){
+          userList.add(str.trim());
+        }
+        controller.addToGroup(uname, grpName, userList);
       }
+
+      System.out.println("Right before get groups");
+      if(requestPath.equals("/getGroups")){
+        System.out.println("We are getting groups");
+        String responseBody = "";
+        Headers h = t.getResponseHeaders();
+        ArrayList<String> groupList = controller.getOwnerGroups(uname);
+        System.out.println("Groups: "+groupList.toString());
+        JsonArrayBuilder builder = Json.createArrayBuilder();
+        for(String group : groupList){
+          builder.add(group);
+        }
+        JsonArray arr = builder.build();
+        responseBody = arr.toString();
+        System.out.println("Response body: "+responseBody);
+
+        h.set("Content-Type", String.format("application/json; charset=%s", CHARSET));
+        final byte[] rawResponseBody = responseBody.getBytes(CHARSET);
+        t.sendResponseHeaders(200, rawResponseBody.length);
+        t.getResponseBody().write(rawResponseBody);
+      }
+      t.close();
     }
   }
 

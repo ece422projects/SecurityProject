@@ -6,6 +6,28 @@ if(window.location.hash.substring(1)!=""){
   console.log("We recieve a hashed path: ");
 }
 
+function showAlert(text) {
+  var toast = document.getElementById("toast");
+  toast.innerHTML = text;
+  toast.className = "show";
+  setTimeout(function(){ toast.className = toast.className.replace("show", ""); }, 3000);
+}
+
+function getCorruptedFiles(){
+  var url = "/getCorruptedFiles";
+  getInfo(url, updateAlertText);
+}
+
+function updateAlertText(xhttp){
+  var files = xhttp.responseText;
+  if(files!=null){
+    if(localStorage.getItem("Alerted")==null){
+      showAlert("The following files were corrupted "+files);
+      localStorage.setItem("Alerted", true);
+    }
+  }
+}
+
 //Universal data request functions//
 
 function getInfo(url, cFunction){
@@ -20,12 +42,42 @@ function getInfo(url, cFunction){
     xhttp.send();
 }
 
+function updateGroupInfo(){
+  var url = "/getGroups";
+  getInfo(url, updateGroupList);
+}
+
+function updateGroupList(xhttp){
+    var groupList = JSON.parse(xhttp.responseText);
+    var groupDropdown = document.getElementById("groups");
+    removeGroups(groupDropdown);
+    var group;
+    var i;
+    for(i=0; i<groupList.length; i++){
+      group = document.createElement('p');
+      group.className = "groupLink";
+      group.innerHTML = groupList[i];
+      groupDropdown.appendChild(group);
+    }
+}
+
+function removeGroups(dropdown){
+  var groups = dropdown.querySelectorAll(".groupLink")
+  var i;
+  for(i=0; i<groups.length; i++){
+    dropdown.removeChild(groups[i]);
+  }
+}
+
 function updateInfo(){
   //Just a wrapper for getting info and then updating UI
   console.log(requestedPath);
   var url = "/getInodes.t?path="+requestedPath;
   getInfo(url, updateContent);
+  updateGroupInfo();
+  getCorruptedFiles();
 }
+
 function removeItems(container){
   var items = container.querySelectorAll(".item");
   var i;

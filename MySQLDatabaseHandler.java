@@ -29,7 +29,7 @@ public class MySQLDatabaseHandler {
             if (resultSet.next()) {
                 systemUser = new SystemUser(resultSet.getString("encryptionkey"));
             }
-        }catch(SQLException se) {            
+        }catch(SQLException se) {
             se.printStackTrace();
         }catch(Exception e){
             e.printStackTrace();
@@ -96,15 +96,15 @@ public class MySQLDatabaseHandler {
     }
 
     public Boolean isOwner(String username, String path) {
-      
+
         String query;
         ArrayList<String> groups = new ArrayList<String>();
         String encryptedPath = PathParsing.encryptPath(systemUser, path);
         query = "SELECT owner FROM groups WHERE path = '" + encryptedPath + "'";
 
-        try {             
+        try {
             ResultSet rs = myStatement.executeQuery(query);
-            
+
             if (rs.next()) {
                 String owner = rs.getString("owner");
 
@@ -126,13 +126,13 @@ public class MySQLDatabaseHandler {
 
         String query;
         ArrayList<String> groups = new ArrayList<String>();
-        query = "SELECT groupname FROM groups WHERE owner = '" + username + "'";
+        query = "SELECT DISTINCT groupname FROM groups WHERE owner = '" + username + "'";
 
         try {
             Connection connection = DriverManager.getConnection(databaseURL, databaseUsername, databasePassword);
-            Statement statement = connection.createStatement();             
+            Statement statement = connection.createStatement();
             ResultSet rs = statement.executeQuery(query);
-            
+
             while (rs.next()) {
                 groups.add(rs.getString("groupname"));
             }
@@ -150,20 +150,20 @@ public class MySQLDatabaseHandler {
             groups.add(username);
         }
 
-        return groups;    
+        return groups;
     }
 
     public ArrayList<String> getUserGroups(String username) {
-      
+
         String query;
         ArrayList<String> groups = new ArrayList<String>();
         query = "SELECT groupname FROM groups WHERE username = '" + username + "'";
 
         try {
             Connection connection = DriverManager.getConnection(databaseURL, databaseUsername, databasePassword);
-            Statement statement = connection.createStatement();             
+            Statement statement = connection.createStatement();
             ResultSet rs = statement.executeQuery(query);
-            
+
             while (rs.next()) {
                 groups.add(rs.getString("groupname"));
             }
@@ -216,7 +216,7 @@ public class MySQLDatabaseHandler {
                 return false;
             } else {
                 query = "INSERT INTO groups(owner, groupname, username) VALUES('" + owner + "', '" + groupname + "', '" + username + "')";
-                myStatement.execute(query); 
+                myStatement.execute(query);
             }
         } catch (SQLException se) {
             se.printStackTrace();
@@ -276,8 +276,8 @@ public class MySQLDatabaseHandler {
         String query;
         String encryptedPath = PathParsing.encryptPath(systemUser, path);
 
-        query = "UPDATE contents SET groupname = '" + groupname + "', canread = '" + canRead + "', canedit = '" + canEdit + "' WHERE path = '" + encryptedPath + "'"; 
-        
+        query = "UPDATE contents SET groupname = '" + groupname + "', canread = '" + canRead + "', canedit = '" + canEdit + "' WHERE path = '" + encryptedPath + "'";
+
         try {
                 myStatement.execute(query);
         } catch (SQLException se) {
@@ -296,7 +296,7 @@ public class MySQLDatabaseHandler {
             query = "SELECT owner FROM contents WHERE path = '" + encryptedPath + "'";
 
             ResultSet resultSet = myStatement.executeQuery(query);
-            
+
             if (resultSet.next()) {
                 String owner = resultSet.getString("owner");
 
@@ -437,7 +437,7 @@ public class MySQLDatabaseHandler {
                     String canRead = resultSet.getString("canread");
                     String owner = resultSet.getString("owner");
                     String groupname = resultSet.getString("groupname");
-            
+
                     if (path.matches("/[^/]+/[^/]+")) {
                         if (owner.equals(username)) {
                             if (type.equals("D")) {
@@ -456,9 +456,9 @@ public class MySQLDatabaseHandler {
                                 directories.add(name);
                             } else if (type.equals("F")) {
                                 files.add(name);
-                            }                       
+                            }
                         }
-                    } else {           
+                    } else {
                         if (type.equals("D")) {
                             directories.add(systemUser.decryptData(name));
                         } else if (type.equals("F")) {
@@ -471,15 +471,15 @@ public class MySQLDatabaseHandler {
             if (isEmpty) {
 
                 query = "SELECT type, path, groupname, canread FROM contents WHERE path REGEXP '^" + path + "/[^/]+/$'";
-                resultSet = myStatement.executeQuery(query);  
-                  
+                resultSet = myStatement.executeQuery(query);
+
                 while (resultSet.next()) { // CAN VIEW
 
                     String type = resultSet.getString("type");
                     String name = PathParsing.returnElementName(systemUser, resultSet.getString("path"));
-                    String groupname = resultSet.getString("groupname");  
+                    String groupname = resultSet.getString("groupname");
                     String canRead = resultSet.getString("canread");
-                    
+
                     if (canRead.equals("Y") && inGroup(username, groupname)) {
                         if (type.equals("D")) {
                             directories.add(systemUser.decryptData(name));
@@ -491,7 +491,7 @@ public class MySQLDatabaseHandler {
                             directories.add(name);
                         } else if (type.equals("F")) {
                             files.add(name);
-                        }                       
+                        }
                     }
                 }
             }
