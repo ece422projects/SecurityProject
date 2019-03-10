@@ -188,6 +188,7 @@
     }
 
     if (link.getAttribute("data-action") == "View"){
+      console.log(currentPath+"/"+filename);
       window.location.replace("/viewFile?file="+currentPath+"/"+filename+"#"+currentPath);
     }
 
@@ -216,7 +217,7 @@
         url = "/"+request+"?file="+path+"?newName="+newName;
       }
       else{
-        url = "/"+request+"?file="+path+"?;
+        url = "/"+request+"?file="+path;
       }
       xhttp.open("GET", url, false);
       xhttp.send();

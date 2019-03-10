@@ -137,11 +137,28 @@ public class SFSServer {
     public void handle(HttpExchange t) throws IOException {
       String requestBody = printRequestInfo(t);
       URI uri = t.getRequestURI();
-      String path = uri.getPath();
+      String requestPath = uri.getPath();
       String query = uri.getQuery();
-      System.out.println("Path: " + path);
+      System.out.println("Path: " + requestPath);
       System.out.println("Query: " + query);
       Map<String, String> params = queryToMap(query);
+      System.out.println("PArams: "+params.toString());
+
+      String path = params.get("file");
+      Headers requestHeaders = t.getRequestHeaders();
+      List<String> cookies = requestHeaders.get("Cookie");
+      System.out.println(cookies.get(0));
+      Map<String, String> cookieMap = queryToMap(cookies.get(0));
+      String uname = cookieMap.get("uname");
+      System.out.println("User: "+uname);
+
+      if(path.contains("/Home")){
+        path = path.replaceFirst("/Home","/users/"+uname);
+      }
+      if(path.contains("/Users")){
+        path = path.replaceFirst("/Users","/users");
+      }
+      System.out.println("Parsed path: "+path);
 
       File file = new File("textEditor.html").getCanonicalFile();
       Document doc = Jsoup.parse(file, "UTF-8");
@@ -149,16 +166,19 @@ public class SFSServer {
       String html = "";
       Writer writer = new PrintWriter(os);
 
+
+
       Headers h = t.getResponseHeaders();
 
       h.set("Content-Type", "text/html");
       t.sendResponseHeaders(200, 0);
 
-      if(path.equals("/viewFile")){
+      if(requestPath.equals("/viewFile")){
+        //To do
         System.out.println("Path was /viewFile");
         doc.getElementById("textEditor").attr("readonly","true");
-        String someText = "My awesome blog!";
-        doc.getElementById("textEditor").text(someText);
+        String fileBody = controller.openFile(uname, path);
+        doc.getElementById("textEditor").text(fileBody);
         doc.getElementById("filename").text(params.get("file"));
         // doc.getElementById("saveLI").remove();
         doc.getElementById("saveFile").remove();
@@ -166,18 +186,36 @@ public class SFSServer {
 
       }
 
-      if(path.equals("/editFile")){
+      if(requestPath.equals("/editFile")){
         System.out.println("Path was /editFile");
-        doc.getElementById("filename").text(params.get("file"));
-        html = doc.html();
+        if(controller.canEdit(uname,path)){
+          String fileBody = controller.openFile(uname,path);
+          doc.getElementById("textEditor").text(fileBody);
+          doc.getElementById("filename").text(path);
+          html = doc.html();
+        }
+        else{
+          return;
+        }
       }
 
       writer.write(html);
       writer.close();
 
-      if(path.equals("/saveFile")){
+      if(requestPath.equals("/saveFile")){
         //save file
-        System.out.println("Body: "+requestBody);
+        // System.out.println("Body: "+requestBody);
+        Map<String, String> postMap = queryToMap(requestBody);
+        String fileBody = postMap.get("body");
+        System.out.println("Body: "+fileBody);
+
+        try{
+          controller.editFile(uname,path,fileBody);
+          System.out.println("After controller");
+        }
+        catch(Exception e){
+          e.printStackTrace();
+        }
       }
 
       os.close();
@@ -253,7 +291,7 @@ public class SFSServer {
         System.out.println("adding file");
         controller.addFile("user1", inode, "");
       }
-      if(path.equals("newFolder")){
+      if(path.equals("/newFolder")){
         System.out.println("Adding folder");
         controller.addDirectory("user1", inode);
       }
@@ -313,20 +351,6 @@ public class SFSServer {
       JsonArray arr = builder.build();
       responseBody = arr.toString();
       System.out.println("Response body: "+responseBody);
-
-
-
-      //   JsonArray arr = Json.createArrayBuilder()
-      //     .add(Json.createObjectBuilder()
-      //     .add("name","file.txt")
-      //     .add("type","file"))
-      //     .add(Json.createObjectBuilder()
-      //     .add("name","blog")
-      //     .add("type","folder")).build();
-      //   responseBody = arr.toString();
-      //   System.out.println("Response Body: "+responseBody);
-      // }
-
 
       Headers h = t.getResponseHeaders();
       h.set("Content-Type", String.format("application/json; charset=%s", CHARSET));

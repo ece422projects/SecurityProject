@@ -129,7 +129,8 @@ assignDlinks();
 //To do make it so that the file is added in
 function viewFile(filename){
   return function (){
-    window.location.replace("/viewFile?file="+filename+"#"+currentPath);
+    console.log(currentPath+"/"+filename);
+    window.location.replace("/viewFile?file="+currentPath+"/"+filename+"#"+currentPath);
   }
 }
 
