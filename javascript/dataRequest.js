@@ -129,7 +129,7 @@ function updateContent(xhttp){
       itemDiv.appendChild(itemSpan1);
       itemDiv.appendChild(itemSpan2);
       var url = "/canViewFile?file="+currentPath+"/"+inodes[i].name+"#"+currentPath;
-      itemDiv.addEventListener("dblclick", viewEditFile(url));
+      itemDiv.addEventListener("dblclick", viewFileDbl(url));
     }
 
     if(inodes[i].type=="folder"){
@@ -181,22 +181,24 @@ function assignDlinks(){
 assignDlinks();
 
 function viewEditFile(url){
-  return function (){
+  console.log("Request", url);
     var xhttp;
     xhttp=new XMLHttpRequest();
     xhttp.onreadystatechange = function() {
       if (this.readyState == 4 && this.status == 200) {
         var response = this.responseText;
         if(response=="Denied"){
+          console.log("We get a denied");
           return;
         }
-        window.location.replace(response);
+        console.log(response);
+        window.location = response;
       }
     };
     xhttp.open("GET", url, false);
     xhttp.send();
-  }
 }
+
 
 function createFileRequest(element){
   return function(){

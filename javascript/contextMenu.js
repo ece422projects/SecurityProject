@@ -192,7 +192,8 @@
     }
 
     if (link.getAttribute("data-action") == "Edit"){
-      var url = "/editFile?file="+currentPath+"/"+filename+"#"+currentPath;
+      console.log("We try and edit");
+      var url = "/canEditFile?file="+currentPath+"/"+filename+"#"+currentPath;
       viewEditFile(url);
     }
 

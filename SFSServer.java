@@ -85,6 +85,8 @@ public class SFSServer {
     server.createContext("/getGroups", new GroupHandler());
     server.createContext("/getCorruptedFiles", new CorruptedFileHandler());
     server.createContext("/logOut", new LogOutHandler());
+    server.createContext("/canViewFile", new TextEditorHandler());
+    server.createContext("/canEditFile", new TextEditorHandler());
     server.setExecutor(null);
     server.start();
   }
@@ -96,7 +98,7 @@ public class SFSServer {
     **/
     public void handle(HttpExchange t) throws IOException {
       // Returns the body of GET/POST request
-      redirectToLogin(t);
+      // redirectToLogin(t);
       URI uri = t.getRequestURI();
       printRequestInfo(t);
       String path = uri.getPath().substring(1);
@@ -199,6 +201,7 @@ public class SFSServer {
 
   static class TextEditorHandler implements HttpHandler {
     public void handle(HttpExchange t) throws IOException {
+      System.out.println("We get to editor handler");
       String requestBody = printRequestInfo(t);
       URI uri = t.getRequestURI();
       String requestPath = uri.getPath();
@@ -217,6 +220,7 @@ public class SFSServer {
       System.out.println("User: "+uname);
       String originalPath = path;
 
+
       if(path.contains("/Home")){
         path = path.replaceFirst("/Home","/users/"+uname);
       }
@@ -227,9 +231,12 @@ public class SFSServer {
 
       File file = new File("textEditor.html").getCanonicalFile();
       Document doc = Jsoup.parse(file, "UTF-8");
+      if(doc == null){
+        System.out.println("Doc is null");
+      }
       OutputStream os = t.getResponseBody();
-      String html = "";
-      Writer writer = new PrintWriter(os);
+      // String html = "";
+      // Writer writer = new PrintWriter(os);
 
       Headers h = t.getResponseHeaders();
 
@@ -243,19 +250,19 @@ public class SFSServer {
         final byte[] rawResponseBody = responseBody.getBytes(CHARSET);
         t.sendResponseHeaders(200, rawResponseBody.length);
         t.getResponseBody().write(rawResponseBody);
-        t.close();
       }
 
       if(requestPath.equals("/canEditFile")){
+        System.out.println("We get to can edit");
         String responseBody = "Denied";
         if(controller.canEdit(uname,path)){
+          System.out.println("we can edit");
           responseBody = "/editFile?file="+originalPath+"#"+originalPath;
         }
         h.set("Content-Type", String.format("text/plain; charset=%s", CHARSET));
         final byte[] rawResponseBody = responseBody.getBytes(CHARSET);
         t.sendResponseHeaders(200, rawResponseBody.length);
         t.getResponseBody().write(rawResponseBody);
-        t.close();
       }
 
 
@@ -268,19 +275,29 @@ public class SFSServer {
         doc.getElementById("textEditor").text(fileBody);
         doc.getElementById("filename").text(params.get("file"));
         doc.getElementById("saveFile").remove();
+        String html = "";
+        Writer writer = new PrintWriter(os);
         html = doc.html();
+        writer.write(html);
+        writer.close();
       }
 
       if(requestPath.equals("/editFile")){
+        System.out.println("We get to edit file");
         String fileBody = controller.openFile(uname, path);
         System.out.println("Path was /editFile");
         doc.getElementById("textEditor").text(fileBody);
         doc.getElementById("filename").text(path);
+        String html = "";
+        Writer writer = new PrintWriter(os);
         html = doc.html();
+        writer.write(html);
+        writer.close();
       }
 
-      writer.write(html);
-      writer.close();
+      // writer.write(html);
+      // writer.close();
+      System.out.println("We serve the html");
 
       if(requestPath.equals("/saveFile")){
         //save file
@@ -299,6 +316,7 @@ public class SFSServer {
       }
 
       os.close();
+      t.close();
     }
   }
 
@@ -410,13 +428,19 @@ public class SFSServer {
       System.out.println("Path: " + path);
       System.out.println("Query: " + query);
 
+      Headers requestHeaders = t.getRequestHeaders();
+      List<String> cookies = requestHeaders.get("Cookie");
+      System.out.println(cookies.get(0));
+      Map<String, String> cookieMap = queryToMap(cookies.get(0));
+      String uname = cookieMap.get("uname");
+
       Map<String, String> params = queryToMap(query);
       System.out.println(params.toString());
 
       String inode = "";
       try{
         inode = params.get("inode");
-        inode = inode.replaceFirst("/Home","/users/user1");
+        inode = inode.replaceFirst("/Home","/users/"+uname);
       }
       catch(Exception e){
         e.printStackTrace();
@@ -425,11 +449,11 @@ public class SFSServer {
       System.out.println(inode);
       if(path.equals("/newFile")){
         System.out.println("adding file");
-        controller.addFile("user1", inode, "");
+        controller.addFile(uname, inode, "");
       }
       if(path.equals("/newFolder")){
         System.out.println("Adding folder");
-        controller.addDirectory("user1", inode);
+        controller.addDirectory(uname, inode);
       }
       String responseBody = "Good";
       Headers h = t.getResponseHeaders();
@@ -486,11 +510,11 @@ public class SFSServer {
       }
       JsonArray arr = builder.build();
       responseBody = arr.toString();
-      System.out.println("Response body: "+responseBody);
 
       Headers h = t.getResponseHeaders();
       h.set("Content-Type", String.format("application/json; charset=%s", CHARSET));
       final byte[] rawResponseBody = responseBody.getBytes(CHARSET);
+      System.out.println("We get past the raw resposne body");
       t.sendResponseHeaders(200, rawResponseBody.length);
       t.getResponseBody().write(rawResponseBody);
       t.close();
@@ -504,6 +528,9 @@ public class SFSServer {
     for (String param : query.split("&")) {
         System.out.println("Param: "+param);
         String[] entry = param.split("=");
+        if(entry.length == 0){
+          continue;
+        }
         if (entry.length > 1) {
             result.put(entry[0], entry[1]);
         }else{
@@ -515,15 +542,32 @@ public class SFSServer {
 
   private static void redirectToLogin(HttpExchange t) throws IOException{
     System.out.println("We get in to redirectToLogin");
+    boolean redirect = false;
     URI uri = t.getRequestURI();
     String requestPath = uri.getPath();
+    if(requestPath.contains("login")){
+      return;
+    }
     Headers requestHeaders = t.getRequestHeaders();
+    Map<String, String> cookieMap = null;
+    String uname = "";
     List<String> cookies = requestHeaders.get("Cookie");
-    Map<String, String> cookieMap = queryToMap(cookies.get(0));
-    String uname = cookieMap.get("uname");
-    System.out.println("Uname "+uname);
 
-    if(uname.equals("") && !requestPath.contains("login")){
+    if(cookies == null){
+      System.out.println("We get to null check");
+      redirect = true;
+    }
+    else{
+      cookieMap = queryToMap(cookies.get(0));
+      uname = cookieMap.get("uname");
+      System.out.println("Uname "+uname);
+      if(uname.equals("") && !requestPath.contains("login")){
+        redirect = true;
+      }
+    }
+
+
+    if(redirect){
       File file = new File("login_signup.html").getCanonicalFile();
 
       Headers h = t.getResponseHeaders();
