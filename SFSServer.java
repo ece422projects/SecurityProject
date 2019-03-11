@@ -98,7 +98,7 @@ public class SFSServer {
     **/
     public void handle(HttpExchange t) throws IOException {
       // Returns the body of GET/POST request
-      // redirectToLogin(t);
+      redirectToLogin(t);
       URI uri = t.getRequestURI();
       printRequestInfo(t);
       String path = uri.getPath().substring(1);
@@ -224,9 +224,9 @@ public class SFSServer {
       if(path.contains("/Home")){
         path = path.replaceFirst("/Home","/users/"+uname);
       }
-      if(path.contains("/Users")){
+      // if(path.contains("/Users")){
         path = path.replaceFirst("/Users","/users");
-      }
+      // }
       System.out.println("Parsed path: "+path);
 
       File file = new File("textEditor.html").getCanonicalFile();
@@ -272,7 +272,12 @@ public class SFSServer {
         t.sendResponseHeaders(200, 0);
         System.out.println("Path was /viewFile");
         doc.getElementById("textEditor").attr("readonly","true");
-        doc.getElementById("textEditor").text(fileBody);
+        if(fileBody==null){
+          doc.getElementById("textEditor").text("");
+        }
+        else{
+          doc.getElementById("textEditor").text(fileBody);
+        }
         doc.getElementById("filename").text(params.get("file"));
         doc.getElementById("saveFile").remove();
         String html = "";
@@ -286,7 +291,14 @@ public class SFSServer {
         System.out.println("We get to edit file");
         String fileBody = controller.openFile(uname, path);
         System.out.println("Path was /editFile");
-        doc.getElementById("textEditor").text(fileBody);
+        h.set("Content-Type", "text/html");
+        t.sendResponseHeaders(200, 0);
+        if(fileBody==null){
+          doc.getElementById("textEditor").text("");
+        }
+        else{
+          doc.getElementById("textEditor").text(fileBody);
+        }
         doc.getElementById("filename").text(path);
         String html = "";
         Writer writer = new PrintWriter(os);
@@ -438,13 +450,20 @@ public class SFSServer {
       System.out.println(params.toString());
 
       String inode = "";
-      try{
+      // try{
         inode = params.get("inode");
-        inode = inode.replaceFirst("/Home","/users/"+uname);
-      }
-      catch(Exception e){
-        e.printStackTrace();
-      }
+        if(params.get("inode").contains("/Home")){
+          inode = inode.replaceFirst("/Home","/users/"+uname);
+        }
+
+        if(params.get("inode").contains("/Users")){
+          System.out.println("INODE: "+inode);
+          inode = inode.replaceFirst("/Users","/users");
+        }
+      //
+      // catch(Exception e){
+      //   e.printStackTrace();
+      // }
 
       System.out.println(inode);
       if(path.equals("/newFile")){

@@ -21,5 +21,6 @@ function viewFileDbl(url){
     };
     xhttp.open("GET", url, false);
     xhttp.send();
+    localStorage.setItem("Alerted",null);
   }
 }
