@@ -1,0 +1,427 @@
+.content_container {
+  display: flex;
+  flex-flow: wrap;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: flex-start;
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  margin-top: 25px;
+  margin-left: 175px;
+  /* border: 4px solid black; */
+  max-width: 1125px;
+}
+
+html, body {
+  background-color: #f6f2ee;
+  padding: 0;
+}
+body {
+  padding: 0;
+  margin: 0;
+  border: 0;
+  border-top: 10px solid #55538a;
+}
+
+header {
+     position: fixed;
+     top: 0;
+     left: 0;
+     width: 100%;
+ }
+
+.nav {
+    background-color: #5969A1;
+    display: block;
+    margin: 0;
+    border: 0;
+    padding: 0;
+    width: 100%;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    /* position: sticky; */
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    overflow: hidden;
+}
+
+/* .nav > ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+} */
+
+.rightFloat {
+  float: right;
+}
+
+.leftFloat {
+  float: left;
+}
+
+.nav li {
+  margin: 0;
+  border: 0;
+}
+
+.nav a, .nav p{
+  display: block;
+  text-align: center;
+  margin: 0;
+  border: 0;
+  font-size: 25px;
+  color: black;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+#Backbtn {
+  background-color: #5969A1;
+  height: 40px;
+}
+
+.nav>li>.dropdown_content {
+  display: none;
+  background-color: #5969A1;
+  width: inherit;
+  position: absolute;
+  z-index: 1;
+}
+
+.nav a, .nav p{
+  font-family: 'Coiny', cursive;
+  text-decoration: none;
+}
+
+.nav a:hover, .submitButton:hover, #Backbtn:hover, .nav .dropdown_content p:hover, .sidebar a:hover {
+  background-color: #537497;
+}
+.active {
+  background-color: #6F59A1;
+}
+
+.content {
+  padding: 0;
+  border: 0;
+  margin: 0;
+  margin-left: 25px;
+  margin-right: 25px;
+  margin-bottom: 5px;
+  align-self: center;
+}
+
+.headline {
+  font-size: 35px;
+  font-family: 'Coiny', cursive;
+  font-weight: bold;
+  margin-top: 0;
+  margin-bottom: 5px;
+}
+
+.subline {
+  font-size: 20px;
+  font-family: 'Coiny', cursive;
+  font-weight: lighter;
+  margin-top: 0;
+  margin-bottom: 15px;
+}
+
+.section_head.content {
+  font-size: 30px;
+  font-family: 'Lato', sans-serif;
+  font-weight: normal;
+  margin-top: 10px;
+  margin-bottom: 5px;
+}
+
+p.content {
+  font-size: 20px;
+  font-family: 'Lato', sans-serif;
+  /* align-self: flex-start; */
+  padding-right: 10px;
+  padding-left: 10px;
+}
+.sidebar {
+  position: fixed;
+  box-shadow: 4px 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  margin-top: 16px;
+}
+.sidebar ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border: 0;
+  /* border-top: 16px solid #f6f2ee; */
+  overflow-x: hidden;
+  overflow-y: auto;
+  background-color: #5969A1;
+  width: 150px;
+}
+.sidebar li {
+  margin: 0;
+  border: 0;
+  width: inherit;
+}
+
+.sidebar a {
+  width: inherit;
+  display: block;
+  text-align: left;
+  margin: 0;
+  border: 0;
+  font-size: 20px;
+  font-family: 'Coiny', cursive;
+  color: black;
+  text-decoration: none;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+.content_container .folder, .content_container .file{
+  font-size: 70px;
+  color: #5e5d7e;
+  text-shadow: 3px 3px 3px #656379;
+  margin-left: 5px;
+  margin-right: 5px;
+  margin-top: 5px;
+  margin-bottom: 0;
+  padding: 0;
+  border: 0;
+}
+.label{
+  display: block;
+  font-family: 'Lato', sans-serif;
+  text-align: center;
+  max-width: inherit;
+  overflow-x: hidden;
+  font-size: 14px;
+  margin-left: 5px;
+  margin-right: 5px;
+  margin-top: 0;
+  margin-bottom: 5px;
+  border: 0;
+  padding: 0;
+}
+.item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  flex: 1 1;
+  margin: 20px;
+}
+
+.file:hover, .folder:hover {
+  font-size: 80px;
+}
+
+.context-menu {
+  display: none;
+  position: absolute;
+  z-index: 10;
+  padding: 12px 0;
+  width: 140px;
+  background-color: #fff;
+  border: solid 1px #dfdfdf;
+  box-shadow: 1px 1px 2px #cfcfcf;
+}
+
+.context-menu--active {
+  display: block;
+}
+
+.context-menu__items {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.context-menu__item {
+  display: block;
+  margin-bottom: 4px;
+}
+
+.context-menu__item:last-child {
+  margin-bottom: 0;
+}
+
+.context-menu__link {
+  display: block;
+  padding: 4px 12px;
+  color: #0066aa;
+  text-decoration: none;
+}
+
+.context-menu__link:hover {
+  color: #fff;
+  background-color: #0066aa;
+}
+
+/* The Modal (background) */
+.modal {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0,0,0); /* Fallback color */
+  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+/* Modal Content/Box */
+.modal-content {
+  background-color: #f6f2ee;
+  margin: 15% auto; /* 15% from the top and centered */
+  padding: 5px;
+  border: 1px solid #5969A1;
+  width: 60%; /* Could be more or less, depending on screen size */
+}
+
+/* The Close Button */
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.modalForm {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1;
+  justify-content: center;
+  align-items: baseline;
+  width: 100%;
+  margin: 0;
+}
+
+/* Full-width input fields */
+  input[type=text] {
+  width: 80%;
+  padding: 15px;
+  margin: 5px;
+  display: inline-block;
+  border: 2px solid black;
+  background: #f1f1f1;
+}
+
+.okModal {
+  display: block;
+  width: 100%;
+  background-color: #5969A1;
+  border: 0;
+  margin-top: 10px;
+  font-size: 30px;
+  font-family: 'Coiny', cursive;
+  text-align: center;
+  justify-content: center;
+  padding: 0;
+  opacity: 0.9;
+}
+
+.okModal:hover {
+  opacity: 1;
+}
+
+.accordion {
+  background-color:  #cccccc;
+  color: #444;
+  cursor: pointer;
+  padding: 18px;
+  width: 100%;
+  text-align: left;
+  border: none;
+  outline: none;
+  transition: 0.4s ease-out;
+}
+
+/* Add a background color to the button if it is clicked on (add the .active class with JS), and when you move the mouse over it (hover) */
+.active, .accordion:hover {
+  background-color:  #a6a6a6;
+}
+
+/* Style the accordion panel. Note: hidden by default */
+.panel {
+  padding: 0;
+  background-color: white;
+  display: none;
+  overflow: hidden;
+}
+
+.option{
+    font-family: 'Lato', sans-serif;
+    font-size: 14px;
+    font-weight: normal;
+    width: 100%;
+    display: inline-block;
+    padding: 10px 0 10px 15px;
+    vertical-align: middle;
+    background-color: #eee;
+    margin: 0;
+    color: black;
+}
+
+.option:hover {
+  background-color:  #e6e6e6;
+}
+
+#toast {
+ visibility: hidden;
+ min-width: 250px;
+ margin-left: -125px;
+ background-color: #5969A1;
+ color: black;
+ font-family: 'Coiny', cursive;
+ text-align: center;
+ border-radius: 2px;
+ padding: 16px;
+ position: fixed;
+ z-index: 10;
+ left: 50%;
+ bottom: 30px;
+}
+
+#toast.show {
+ visibility: visible;
+ -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
+ animation: fadein 0.5s, fadeout 0.5s 2.5s;
+}
+
+@-webkit-keyframes fadein {
+ from {bottom: 0; opacity: 0;}
+ to {bottom: 30px; opacity: 1;}
+}
+
+@keyframes fadein {
+ from {bottom: 0; opacity: 0;}
+ to {bottom: 30px; opacity: 1;}
+}
+
+@-webkit-keyframes fadeout {
+ from {bottom: 30px; opacity: 1;}
+ to {bottom: 0; opacity: 0;}
+}
+
+@keyframes fadeout {
+ from {bottom: 30px; opacity: 1;}
+ to {bottom: 0; opacity: 0;}
+}

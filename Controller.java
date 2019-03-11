@@ -13,138 +13,136 @@ public class Controller {
 
     public void signUp(String username, String password) {
 
-        User user = new User(username, password);
-        mySQLDatabaseHandler.addToUsers(user);
-        mySQLDatabaseHandler.addUserDirectory(user);
-        commandLineHandler.createUserDirectory(user);
+        mySQLDatabaseHandler.signUp(username, password);
+        mySQLDatabaseHandler.addDirectory(username, "D", "/users/" + username);
+        commandLineHandler.createPhysicalDirectory("/users/" + username);
     }
 
-    public User login(String username, String password) {
+    public Boolean login(String username, String password) {
 
-        if (mySQLDatabaseHandler.isCorrectLogin(username, password)) {
-            return mySQLDatabaseHandler.getFromUsers(username, password);
+        Boolean correctLogin = mySQLDatabaseHandler.logIn(username, password);
+        return correctLogin;
+    }
+
+    public ArrayList<String> getCorruptedFiles(String username) {
+
+        SystemUser systemUser = mySQLDatabaseHandler.returnSystemUser();
+
+        ArrayList<String> encryptedFileNames = commandLineHandler.checkForCorruption(username);
+        ArrayList<String> decryptedNames = new ArrayList<String>();
+
+        for (String path : encryptedFileNames) {
+          String decryptedPath = PathParsing.decryptPath(systemUser, path);
+          decryptedNames.add( PathParsing.returnElementName(systemUser, decryptedPath));
         }
-        else {
-            return null;
-        }
+
+        return decryptedNames;
+
     }
 
-    public ArrayList<String> openRootDirectory() {
-        return mySQLDatabaseHandler.openRootDirectory();
+    public ArrayList<String> getOwnerGroups(String username) {
+
+        return mySQLDatabaseHandler.getGroupsUserOwns(username);
     }
 
-    public void addToGroup(User user, String groupname, ArrayList<String> usernameList) {
+    public void addToGroup(String owner, String groupname, ArrayList<String> usernameList) {
 
         for (String username : usernameList) {
-            mySQLDatabaseHandler.addToGroups(groupname, username);
+            mySQLDatabaseHandler.addToGroups(owner, username, groupname);
         }
     }
 
-    public void removeFromGroup(String groupname, ArrayList<String> usernameList) {
+    public void removeFromGroup(String owner, String groupname, ArrayList<String> usernameList) {
 
         for (String username : usernameList) {
-            mySQLDatabaseHandler.removeFromGroups(groupname, username);
-        }      
-    }
-
-    public void editDirectoryPermissions(User user, String directorypath, String directoryname, String groupname, String canRead, String canWrite) {
-
-        mySQLDatabaseHandler.addDirectoryPermissions(user, directorypath, directoryname, groupname, canRead, canWrite);
-
-    }
-
-    public void editFilePermissions(User user, String filepath, String filename, String groupname, String canRead, String canWrite) {
-
-        mySQLDatabaseHandler.addFilePermissions(user, filepath, filename, groupname, canRead, canWrite);
-
-    }
-
-    public void createDirectory(User user, String directorypath, String directoryname) {
-
-        mySQLDatabaseHandler.addToDirectories(user, directorypath, directoryname);
-    }
-
-    public ArrayList<ArrayList<String>> openDirectory(User user, String directorypath, String directoryname) {
-
-        return mySQLDatabaseHandler.openDirectory(user, directorypath, directoryname);
-    }
-
-    public String openFile(User user, String filepath, String filename) {
-
-        return mySQLDatabaseHandler.openFile(user, filepath, filename);
-    }
-
-    public Boolean canRenameDirectory(User user, String directorypath, String directoryname) {
-
-        if (mySQLDatabaseHandler.canEditDirectory(user, directorypath, directoryname)) {
-            return true;
-        } else {
-            return false;
+            mySQLDatabaseHandler.removeFromGroups(owner, username, groupname);
         }
     }
 
-    public void renameDirectory(User user, String directorypath, String directoryname, String newdirectoryname) {
-  
-        mySQLDatabaseHandler.renameDirectory(user, directorypath, directoryname, newdirectoryname);
+    public void addDirectory(String username, String path) {
+
+        SystemUser systemUser = mySQLDatabaseHandler.returnSystemUser();
+        String encryptedPath = PathParsing.encryptPath(systemUser, path).trim();
+        mySQLDatabaseHandler.addDirectory(username, "D", path);
+        commandLineHandler.createPhysicalDirectory(encryptedPath);
     }
 
-    public Boolean canRenameFile(User user, String filepath, String filename) {
+    public void addFile(String username, String path, String fileBody) {
 
-        if (mySQLDatabaseHandler.canEditFile(user, filepath, filename)) {
-            return true;
-        } else {
-            return false;
-        }
+        SystemUser systemUser = mySQLDatabaseHandler.returnSystemUser();
+        String encryptedPath = PathParsing.encryptPath(systemUser, path).trim();
+        String encryptedFilebody = systemUser.encryptData(fileBody);
+        mySQLDatabaseHandler.addFile(username, "F", path, fileBody);
+        commandLineHandler.createPhysicalFile(encryptedPath, encryptedFilebody);
     }
 
-    public void renameFile(User user, String filepath, String filename, String newfilename) {
-  
-        mySQLDatabaseHandler.renameFile(user, filepath, filename, newfilename);
+    public ArrayList<String> getUserGroups(String username){
+      return mySQLDatabaseHandler.getUserGroups(username);
     }
 
-    public Boolean canEditFile(User user, String filepath, String filename) {
+    public ArrayList<ArrayList<String>> openDirectory(String username, String path) {
 
-        if (mySQLDatabaseHandler.canEditFile(user, filepath, filename)) {
-            return true;
-        } else {
-            return false;
-        }
+        return mySQLDatabaseHandler.openDirectory(username, path);
     }
 
-    public void editFile(User user, String filepath, String filename, String filebody) {
+    public String openFile(String username, String path) {
 
-        mySQLDatabaseHandler.addToFiles(user, filepath, filename, filebody);
+        return mySQLDatabaseHandler.openFile(username, path);
     }
 
-    public Boolean canDeleteFile(User user, String filepath, String filename) {
+    public boolean canEdit(String username, String path) {
 
-        if (mySQLDatabaseHandler.isFileOwner(user, filepath, filename)) {
-            return true;
-        } else {
-            return false;
-        }
+        return mySQLDatabaseHandler.canEditFile(username, path);
     }
 
-    public void deleteFile(User user, String filepath, String filename) {
-  
-        mySQLDatabaseHandler.deleteFile(user, filepath, filename);
+    public void editFile(String username, String path, String newFilebody) {
+
+        SystemUser systemUser = mySQLDatabaseHandler.returnSystemUser();
+        String encryptedPath = PathParsing.encryptPath(systemUser, path).trim();
+        String encryptedFilebody = systemUser.encryptData(newFilebody);
+        mySQLDatabaseHandler.editFile(username, path, newFilebody);
+        commandLineHandler.deletePhysicalFile(encryptedPath);
+        commandLineHandler.createPhysicalFile(encryptedPath, encryptedFilebody);
     }
 
-    public Boolean canDeleteDirectory(User user, String directorypath, String directoryname) {
+    public boolean canRename(String username, String path) {
 
-        if (mySQLDatabaseHandler.isDirectoryOwner(user, directorypath, directoryname)) {
-            return true;
-        } else {
-            return false;
-        }
+        return mySQLDatabaseHandler.isOwner(username, path);
     }
 
-    public void deleteDirectory(User user, String directorypath, String directoryname) {
-  
-        mySQLDatabaseHandler.deleteDirectory(user, directorypath, directoryname);
+    public void renameFile(String username, String path, String newName) {
+
+        mySQLDatabaseHandler.rename(username, path, newName);
+    }
+
+    public void renameDirectory(String username, String path, String newName) {
+
+        mySQLDatabaseHandler.rename(username, path, newName);
+    }
+
+    public boolean canDelete(String username, String path) {
+
+        return mySQLDatabaseHandler.isOwner(username, path);
+    }
+
+    public void deleteFile(String username, String path) {
+
+        SystemUser systemUser = mySQLDatabaseHandler.returnSystemUser();
+        String encryptedPath = PathParsing.encryptPath(systemUser, path).trim();
+        mySQLDatabaseHandler.delete(username, path);
+        commandLineHandler.deletePhysicalFile(encryptedPath);
+    }
+
+    public void deleteDirectory(String username, String path) {
+
+        SystemUser systemUser = mySQLDatabaseHandler.returnSystemUser();
+        String encryptedPath = PathParsing.encryptPath(systemUser, path).trim();
+        mySQLDatabaseHandler.delete(username, path);
+        commandLineHandler.deletePhysicalDirectory(encryptedPath);
     }
 
     public void close() {
         mySQLDatabaseHandler.close();
+        commandLineHandler.close();
     }
 }

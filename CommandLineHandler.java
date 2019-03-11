@@ -1,13 +1,34 @@
 import java.lang.*;
+import java.sql.*;
 import java.util.*;
 import java.io.*;
+import java.io.File;
 
 public class CommandLineHandler {
+
+    private String JDBCDriver = "com.mysql.jdbc.Driver";
+    private String databaseURL = "jdbc:mysql://localhost/secure_file_system?useSSL=false";
+    private String databaseUsername = "root";
+    private String databasePassword = "Project";
+ 
+    private Connection myConnection;
+    private Statement myStatement;
 
     private String rootPath;
 
     public CommandLineHandler() {
-        this.rootPath = "/home/ubuntu/root/";
+        this.rootPath = "/home/ubuntu";
+
+        try {
+            Class.forName(JDBCDriver);
+
+            myConnection = DriverManager.getConnection(databaseURL, databaseUsername, databasePassword);
+            myStatement = myConnection.createStatement();
+        } catch (SQLException se) {
+            se.printStackTrace();
+        } catch(Exception e){
+            e.printStackTrace();
+        }
 
         makeRootDirectory();
     }
@@ -15,137 +36,120 @@ public class CommandLineHandler {
     public void makeRootDirectory() {
 
         try {
-            String command = "mkdir " + this.rootPath;
+            String command = "mkdir " + this.rootPath + "/users/";
             Process p = Runtime.getRuntime().exec(command);
         } catch (IOException e) {
             e.printStackTrace();
         }         
     }
 
-    public String getRootPath() {
-        return this.rootPath;
-    }
+    public ArrayList<String> checkForCorruption(String username) {
 
-    public void createUserDirectory(User u) {
-
-        try {
-            String command = "mkdir " + this.rootPath + u.getUserName();
-            Process p = Runtime.getRuntime().exec(command);  
-        } catch (IOException e) {
-            e.printStackTrace();
-        }       
-    }
-
-    public ArrayList<String> returnAllFiles(String directoryPath) {     
-
-        ArrayList<String> files = new ArrayList<String>();
+        String query;
+        query = "SELECT * from contents WHERE owner = '" + username + "'";
+        ArrayList<String> corruptedFileNames = new ArrayList<String>();
 
         try {
+            ResultSet resultSet = myStatement.executeQuery(query);
 
-            String command = "ls -p " + this.rootPath + directoryPath + " | grep -v /";
-            Process p = Runtime.getRuntime().exec(command);
+            while (resultSet.next()) {
+                String type = resultSet.getString("type");
+                String path = resultSet.getString("path");
+                String filebody = resultSet.getString("filebody");
 
-            BufferedReader stdInput = new BufferedReader(new 
-                                            InputStreamReader(p.getInputStream()));
+                if (type.equals("F")) {
 
-            String s = null;
-            while ((s = stdInput.readLine()) != null) {
+                    String physicalFileBody = readFile(path);
 
-                files.add(s);
+                    if (!filebody.equals(physicalFileBody)) {
+                        corruptedFileNames.add( path );
+                    }
+                }
             }
 
-        } catch (IOException e) {
+        } catch (SQLException se) {
+            se.printStackTrace();
+        } catch(Exception e){
             e.printStackTrace();
         }
 
-        return files;
+        return corruptedFileNames;
     }
 
-    public ArrayList<String> returnAllDirectories(String directoryPath) {     
-
-        ArrayList<String> files = new ArrayList<String>();
+    public void createPhysicalDirectory(String path) {
 
         try {
-
-            String command = "ls -p " + directoryPath + " | grep /";
+            String command = "mkdir " + this.rootPath + path;
             Process p = Runtime.getRuntime().exec(command);
-
-            BufferedReader stdInput = new BufferedReader(new 
-                                            InputStreamReader(p.getInputStream()));
-
-            String s = null;
-            while ((s = stdInput.readLine()) != null) {
-
-                files.add(s);
-            }
-
         } catch (IOException e) {
             e.printStackTrace();
-        }
-
-        return files;
+        }  
     }
 
-    public void createFile(User u, String filePath, String fileName, String fileBody) {
-
-        try {     
-            String encryptedFileName = u.encryptData(fileName);
-            String encryptedFileBody = u.encryptData(fileBody);
-            BufferedWriter writer = new BufferedWriter(new FileWriter(this.rootPath + "/" + filePath + "/" + encryptedFileName )); 
-            writer.write(encryptedFileBody);
-            writer.close();
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }       
-    }
-
-    public void updateFile(User u, String filePath, String fileName, String fileBody) {
-
+    public void deletePhysicalDirectory(String path) {
 
         try {
-
-            String encryptedFileName = u.encryptData(fileName);
-            String encryptedFileBody = u.encryptData(fileBody);
-            BufferedWriter writer = new BufferedWriter(new FileWriter(this.rootPath + "/" + filePath + "/" + encryptedFileName )); 
-            writer.write(encryptedFileBody);
-            writer.close();
-
+            String command = "rm -rf " + this.rootPath + path;
+            Process p = Runtime.getRuntime().exec(command);
         } catch (IOException e) {
             e.printStackTrace();
-        }       
+        }         
     }
 
-    public String readFile(User u, String fileName, String filePath) {
+    public void createPhysicalFile(String path, String filebody) {
 
-        String encryptedFilename = u.encryptData(fileName);
+        try {
+            path = path.substring(0, path.length() - 1);
+            BufferedWriter writer = new BufferedWriter(new FileWriter(this.rootPath + path.trim()));
+            writer.write(filebody);
+            writer.close();
+        }  catch (IOException e) {
+            e.printStackTrace();
+        } 
+    }
+
+    public void deletePhysicalFile(String path) {
+
+        try {
+            String command = "rm " + this.rootPath + path;
+            Process p = Runtime.getRuntime().exec(command);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }         
+    }
+
+    public String readFile(String path) {
+
         String fileBody = "";
 
         try {
-            BufferedReader reader = new BufferedReader(new FileReader(this.rootPath + "/" + filePath + "/" + encryptedFilename ) );
+            BufferedReader reader = new BufferedReader(new FileReader(this.rootPath + path) );
             StringBuilder sBuilder = new StringBuilder();
             String s = null;
             while ( (s = reader.readLine()) != null) {
                 sBuilder.append(s);
             }
 
-            fileBody = u.decryptData(sBuilder.toString());
+            fileBody = sBuilder.toString();
             reader.close();
 
         } catch (IOException e) {
+            e.printStackTrace();
+        } catch(Exception e){
             e.printStackTrace();
         }     
         
         return fileBody;
     }
 
-    public void deleteFile(User u, String fileName, String filePath) {
+    public void close() {
 
         try {
-            String command = "rm -rf " + this.rootPath + "/" + filePath + "/" + fileName;            
-            Process p = Runtime.getRuntime().exec(command);
-        } catch (IOException e) {
+            myConnection.close();
+            myStatement.close();
+        } catch(Exception e) {
             e.printStackTrace();
         }
-    }
+   }
+
 }

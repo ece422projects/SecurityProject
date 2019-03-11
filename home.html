@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>SFS</title>
+        <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css?family=Coiny" rel="stylesheet">
+        <link rel="stylesheet" type="text/css" href="styles/sfs.css">
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+    </head>
+  <body onload="updateInfo()">
+    <ul class="nav">
+      <li>
+        <a id="Backbtn" class="leftFloat"><i class="fas fa-chevron-left"></i></a>
+      </li>
+      <li class="leftFloat">
+          <a id="fileDropdown" onclick="fileDropdown()">File</a>
+          <div id="fileDropdowns" class="dropdown_content">
+            <p id="newFile">New</p>
+            <p id="newFolder">New Folder</p>
+          </div>
+      </li>
+      <li class="leftFloat">
+          <a id="group" onclick="groupDropdown()">Group</a>
+          <div id="groups" class="dropdown_content">
+            <a id="newGrp">New</a>
+          </div>
+      </li>
+      <li class="leftFloat">
+        <p id="currentPath">Current/Path/</p>
+      </li>
+      <li class="rightFloat">
+        <a id="logOut">LogOut</a>
+      </li>
+    </ul>
+    <div class="leftFloat sidebar">
+      <ul class="leftFloat">
+        <li>
+          <a class="dLink">Home</a>
+        </li>
+        <li>
+          <a class="dLink">Users</a>
+        </li>
+        <li>
+          <a class="dLink">Documents</a>
+        </li>
+      </ul>
+    </div>
+
+    <div class="content_container leftFloat">
+      </div>
+      <div id="context-menu" class="context-menu">
+        <ul class="context-menu__items">
+          <li class="context-menu__item">
+            <a href="#" class="context-menu__link" data-action="View">View</a>
+          </li>
+          <li class="context-menu__item">
+            <a href="#" class="context-menu__link" data-action="Edit">Edit</a>
+          </li>
+          <li class="context-menu__item">
+            <a href="#" class="context-menu__link"  data-action="Rename">Rename</a>
+          </li>
+          <li class="context-menu__item">
+            <a href="#" class="context-menu__link" data-action="Delete">Delete</a>
+          </li>
+          <li class="context-menu__item">
+            <a href="#" class="context-menu__link" data-action="Permissions">Permissions</a>
+          </li>
+        </ul>
+    </div>
+    <div id="newGrpModal" class="modal">
+      <div class="modal-content">
+        <span class="close">&times;</span><br/>
+        <form class="modalForm" action="" method="">
+          <label for="grpName">Group Name</label>
+          <input id="newGrpName" type="text" placeholder="Enter a new group name" name="grpName" required>
+          <label for="grpUsers">Users</label>
+          <input id="newGrpUsers" type="text" placeholder="Please enter a comma separated list of users" name="grpUsers" required>
+          <a name="okNewGrp" id="okNewGrp" class="okModal">Ok</an>
+        </form>
+      </div>
+    </div>
+    <div id="grpModal" class="modal">
+      <div class="modal-content">
+        <span class="close">&times;</span><br/>
+        <form class="modalForm" action="" method="">
+          <h3 id="groupName"></h3>
+          <label for="addGrpUsers">Add Users</label>
+          <input type="text" placeholder="Please enter a comma separated list of users to add" name="addGrpUsers" required>
+          <label for="rmvGrpUsers">Remove Users</label>
+          <input type="text" placeholder="Please enter a comma separated list of users to remove" name="rmvGrpUsers" required>
+          <button type="button" name="okEditGrp" id="okEditGrp" class="okModal" onclick="">Ok</button>
+        </form>
+      </div>
+    </div>
+    <div id="fileModal" class="modal">
+      <div class="modal-content">
+        <span class="close">&times;</span><br/>
+        <form class="modalForm" action="" method="">
+          <input id="newFileInput" type="text" placeholder="Please enter a new file name" name="nameFile" required>
+          <a id="newFileButton" class="okModal">Ok</a>
+        </form>
+      </div>
+    </div>
+    <div id="renameModal" class="modal">
+      <div class="modal-content">
+        <span class="close">&times;</span><br/>
+        <form class="modalForm" action="" method="">
+          <input id="renameFile" type="text" placeholder="Please enter a new name" name="renameFile" required>
+          <button type="button" name="okRenameFile" id="okRenameFile" class="okModal">Ok</button>
+        </form>
+      </div>
+    </div>
+    <div id="folderModal" class="modal">
+      <div class="modal-content">
+        <span class="close">&times;</span><br/>
+        <form class="modalForm" action="" method="">
+          <input id="newFolderInput" type="text" placeholder="Please enter a new folder name" name="nameFolder" required>
+          <a id="NameFolderButton" class="okModal">Ok</a>
+        </form>
+      </div>
+    </div>
+    <div id="permissionsModal" class="modal">
+      <div class="modal-content">
+        <span class="close">&times;</span><br/>
+          <button class="accordion">Group 1</button>
+          <div class="panel">
+            <form class="permissionForm" action="" method="">
+              <label class="option">
+                <input type="radio" name="read" value="1" />
+                <span>Read</span>
+              </label>
+              <label class="option">
+                <input type="radio" name="write" value="2" />
+                <span>Write</span>
+              </label>
+            </form>
+          </div>
+
+          <button class="accordion">Group 2</button>
+          <div class="panel">
+            <form class="permissionForm" action="" method="">
+              <label class="option">
+                <input type="radio" name="read" value="1" />
+                <span>Read</span>
+              </label>
+              <label class="option">
+                <input type="radio" name="write" value="2" />
+                <span>Write</span>
+              </label>
+            </form>
+          </div>
+          <button type="button" name="okPermissions" id="okPermissions" class="okModal" onclick="">Ok</button>
+      </div>
+    </div>
+    <div id="toast"></div>
+  </body>
+  <script src="javascript/dataRequest.js"></script>
+  <script src="javascript/dropdown.js"></script>
+  <script src="javascript/contextMenu.js"></script>
+  <script src="javascript/grpModal.js"></script>
+  <script src="javascript/accordion.js"></script>
+  <script src="javascript/logOut.js"></script>
+</html>
